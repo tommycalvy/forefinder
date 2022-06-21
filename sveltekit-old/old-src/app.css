@@ -1,7 +1,5 @@
 @import '@fontsource/fira-mono';
 
-
-
 :root {
 	font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
 		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -16,16 +14,18 @@
 	--background-without-opacity: rgba(255, 255, 255, 0.7);
 	--column-width: 42rem;
 	--column-margin-top: 4rem;
-	--youtube-primary: #FAF9F9;
-	--forefinder-primary: #E6E0E0;
-	--forefinder-secondary: #98BDD7;
-	--hover-color: #D6D6D6;
 }
 
 body {
 	min-height: 100vh;
 	margin: 0;
-	background-color: var(--forefinder-primary);
+	background-color: var(--primary-color);
+	background: linear-gradient(
+		180deg,
+		var(--primary-color) 0%,
+		var(--secondary-color) 10.45%,
+		var(--tertiary-color) 41.35%
+	);
 }
 
 body::before {
@@ -61,9 +61,33 @@ p {
 	line-height: 1.5;
 }
 
+a {
+	color: var(--accent-color);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
 h1 {
 	font-size: 2rem;
 	text-align: center;
+}
+
+h2 {
+	font-size: 1rem;
+}
+
+pre {
+	font-size: 16px;
+	font-family: var(--font-mono);
+	background-color: rgba(255, 255, 255, 0.45);
+	border-radius: 3px;
+	box-shadow: 2px 2px 6px rgb(255 255 255 / 25%);
+	padding: 0.5em;
+	overflow-x: auto;
+	color: var(--text-color);
 }
 
 input,

@@ -1,1 +1,1 @@
-<h1>Messages Page</h1>
+<h1>Messages</h1>
