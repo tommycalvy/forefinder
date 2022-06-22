@@ -22,8 +22,6 @@
 		justify-content: center;
 		align-items: center;
 		border: none;
-		border-radius: 1rem;
-		padding: 0.3rem 1rem 0.3rem 1rem;
 	}
 
 	.logo h3 {

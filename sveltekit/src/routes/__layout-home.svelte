@@ -42,6 +42,7 @@
 					{:else}
 						<svelte:component this={item.icon.outlined} width={36} height={36} />
 					{/if}
+					<span class="bar" />
 				</a>
 			{/each}
 	</nav>
@@ -69,15 +70,16 @@
 
 	nav {
 		display: flex;
-		align-items: center;
-		justify-content: space-between;
+		height: 3.6rem;
 	}
 
 	.icon-bar a {
-		width: 6rem;
-		height: 2.5rem;
-		padding: 0.2rem 0.5rem 0.2rem 0.5rem;
-		margin: 0 0.5rem 0 0.5rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		width: 6.4rem;
+		margin: 0 1rem 0 1rem;
+		padding-top: 0.6rem;
 		border-radius: 0.5rem;
 		color: var(--pitch-black);
 		text-align: center;
@@ -88,8 +90,19 @@
 	}
 
 	.icon-bar a.active {
-		text-decoration: underline;
 		color: var(--pine-tree-green);
+	}
+
+	.icon-bar a.active:hover {
+		background-color: var(--pure-white);
+	}
+
+	.icon-bar span {
+		height: 0.2rem;
+	}
+
+	.icon-bar a.active span {
+		background-color: var(--pine-tree-green);
 	}
 
 	.sides {
