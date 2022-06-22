@@ -2,7 +2,7 @@
     import logo from '/forefinder-svg-logo-solo-no-bg.svg'
 </script>
 
-<a sveltekit:prefetch href="/discover" title="Discover Golfers">
+<a sveltekit:prefetch href="/home" title="Home">
     <span class="logo">
         <h3>forefinder</h3>
         <div>
@@ -20,7 +20,6 @@
 	.logo {
 		display: flex;
 		justify-content: center;
-		background-color: #004AAD;
 		align-items: center;
 		border: none;
 		border-radius: 1rem;
@@ -28,7 +27,7 @@
 	}
 
 	.logo h3 {
-		color: white;
+		color: black;
 		margin: 0;
 		letter-spacing: 0.1rem;
 		font-weight: 400;

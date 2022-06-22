@@ -7,6 +7,7 @@
 		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	--font-mono: 'Fira Mono', monospace;
 	--pure-white: #ffffff;
+	--pitch-black: #000000;
 	--primary-color: #b9c6d2;
 	--secondary-color: #d0dde9;
 	--tertiary-color: #edf0f8;
@@ -17,8 +18,10 @@
 	--column-width: 42rem;
 	--column-margin-top: 4rem;
 	--youtube-primary: #FAF9F9;
-	--forefinder-primary: #E6E0E0;
+	--forefinder-primary: #F7F3F3;
 	--forefinder-secondary: #98BDD7;
+	--forefinder-green: #99D420;
+	--pine-tree-green: #3E7D46;
 	--hover-color: #D6D6D6;
 }
 
