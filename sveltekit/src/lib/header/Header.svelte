@@ -1,124 +1,184 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import logo from './svelte-logo.svg';
+	import HomeFilled from '$lib/icons/home-filled.svelte';
+	import HomeOutlined from '$lib/icons/home-outlined.svelte';
+	import MessageFilled from '$lib/icons/messages-filled.svelte';
+	import MessageOutlined from '$lib/icons/messages-outlined.svelte';
+	import FriendsFilled from '$lib/icons/friends-filled.svelte';
+	import FriendsOutlined from '$lib/icons/friends-outlined.svelte';
+
+	import ForefinderLogo from '$lib/forefinder-logo-a.svelte';
+	import UserFilled from '$lib/icons/user-filled.svelte';
+
+	const nav = [
+		{
+			title: 'Home',
+			path: '/home',
+			icon: {
+				filled: HomeFilled,
+				outlined: HomeOutlined
+			}
+		},
+		{
+			title: 'Friends',
+			path: '/friends',
+			icon: {
+				filled: FriendsFilled,
+				outlined: FriendsOutlined
+			}
+		},
+		{
+			title: 'Messages',
+			path: '/messages',
+			icon: {
+				filled: MessageFilled,
+				outlined: MessageOutlined
+			}
+		}
+	];
 </script>
 
 <header>
-	<div class="corner">
-		<a href="https://kit.svelte.dev">
-			<img src={logo} alt="SvelteKit" />
-		</a>
+	<div class="sides">
+		<span class="left">
+			<ForefinderLogo />
+		</span>
 	</div>
-
-	<nav>
-		<svg viewBox="0 0 2 3" aria-hidden="true">
-			<path d="M0,0 L1,2 C1.5,3 1.5,3 2,3 L2,0 Z" />
-		</svg>
+	<nav class="icon-bar">
 		<ul>
-			<li class:active={$page.url.pathname === '/'}><a sveltekit:prefetch href="/">Home</a></li>
-			<li class:active={$page.url.pathname === '/about'}>
-				<a sveltekit:prefetch href="/about">About</a>
-			</li>
-			<li class:active={$page.url.pathname === '/todos'}>
-				<a sveltekit:prefetch href="/todos">Todos</a>
-			</li>
+			{#each nav as item}
+				<li>
+					<a href={item.path} data-text={item.title} aria-label={item.title} class:active={$page.url.pathname == item.path}>
+						{#if $page.url.pathname == item.path}
+							<svelte:component this={item.icon.filled} width={36} height={36} />
+						{:else}
+							<svelte:component this={item.icon.outlined} width={36} height={36} />
+						{/if}
+					</a>
+					<hr class="bar" class:active={$page.url.pathname == item.path} />
+				</li>
+			{/each}
 		</ul>
-		<svg viewBox="0 0 2 3" aria-hidden="true">
-			<path d="M0,0 L0,3 C0.5,3 0.5,3 1,2 L2,0 Z" />
-		</svg>
 	</nav>
-
-	<div class="corner">
-		<!-- TODO put something else here? github link? -->
+	<div class="sides">
+		<span class="right">
+			<UserFilled width={36} height={36} />
+		</span>
 	</div>
 </header>
 
+<!--padding: 0.2rem 2rem 0.2rem 2rem; -->
 <style>
 	header {
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.corner {
-		width: 3em;
-		height: 3em;
-	}
-
-	.corner a {
+		padding: 0 4rem 0 4rem;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 100%;
-		height: 100%;
-	}
-
-	.corner img {
-		width: 2em;
-		height: 2em;
-		object-fit: contain;
-	}
-
-	nav {
-		display: flex;
-		justify-content: center;
-		--background: rgba(255, 255, 255, 0.7);
-	}
-
-	svg {
-		width: 2em;
-		height: 3em;
-		display: block;
-	}
-
-	path {
-		fill: var(--background);
-	}
-
-	ul {
-		position: relative;
-		padding: 0;
 		margin: 0;
-		height: 3em;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		list-style: none;
-		background: var(--background);
-		background-size: contain;
+		min-height: 3.6rem;
+		background-color: var(--pure-white);
 	}
 
-	li {
+	.icon-bar ul {
+		display: flex;
+		height: 3.3rem;
+		list-style-type: none;
+		margin: 0;
+		padding: 0.3rem 0 0 0;
+	}
+
+	.icon-bar li {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		margin: 0 1rem 0 1rem;
+	}
+
+	.icon-bar a {
 		position: relative;
-		height: 100%;
-	}
-
-	li.active::before {
-		--size: 6px;
-		content: '';
-		width: 0;
-		height: 0;
-		position: absolute;
-		top: 0;
-		left: calc(50% - var(--size));
-		border: var(--size) solid transparent;
-		border-top: var(--size) solid var(--accent-color);
-	}
-
-	nav a {
 		display: flex;
-		height: 100%;
-		align-items: center;
-		padding: 0 1em;
-		color: var(--heading-color);
-		font-weight: 700;
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		text-decoration: none;
-		transition: color 0.2s linear;
+		flex-direction: column;
+		justify-content: center;
+		width: 6.4rem;
+		padding: 0.3rem 0 0.2rem 0;
+		border-radius: 0.5rem;
+		color: var(--pitch-black);
+		text-align: center;
 	}
 
-	a:hover {
-		color: var(--accent-color);
+	.icon-bar a:hover {
+		background-color: var(--hover-color);
+		transition: background-color 0.2s;
+		transition-timing-function: ease;
 	}
+
+	.icon-bar a:active:hover {
+		color: var(--active-color);
+	}
+
+	.icon-bar a.active {
+		color: var(--pine-tree-green);
+	}
+
+	.icon-bar a.active:hover {
+		background-color: var(--pure-white);
+	}
+
+	.icon-bar a.active:active:hover {
+		color: var(--pine-tree-green-active);
+	}
+
+	.bar {
+		border: 0.1rem solid var(--pure-white);
+		margin: 0;
+	}
+
+	.bar.active {
+		border-color: var(--pine-tree-green);
+	}
+
+	.sides {
+		flex-grow: 1;
+		flex-basis: 0;
+	}
+
+	.left {
+		float: left;
+	}
+
+	.right {
+		float: right;
+	}
+
+	.icon-bar a::before {
+		content: attr(data-text); 
+		position: absolute;
+		
+		top: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		margin-top: 0.5rem;
+		
+		padding: 10px;
+		font-size: small;
+		opacity: 0;
+		border-radius: 10px;
+		background-color: var(--pitch-black);
+		color: var(--pure-white);
+		text-align: center;
+		visibility: hidden;
+		
+	}
+
+	.icon-bar:hover a::before {
+		opacity: 0.7;
+		transition: opacity 0.1s;
+		transition-delay: 0.4s;
+		transition-timing-function: ease;
+	}
+
+	.icon-bar a:hover::before {
+		visibility: visible;
+	}
+
 </style>

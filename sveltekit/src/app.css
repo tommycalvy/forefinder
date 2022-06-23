@@ -18,11 +18,13 @@
 	--column-width: 42rem;
 	--column-margin-top: 4rem;
 	--youtube-primary: #FAF9F9;
-	--forefinder-primary: #F7F3F3;
+	--forefinder-primary: #F5F2F0;
 	--forefinder-secondary: #98BDD7;
 	--forefinder-green: #99D420;
 	--pine-tree-green: #3E7D46;
-	--hover-color: #D6D6D6;
+	--pine-tree-green-active: #5F9F6B;
+	--hover-color: #E5E5E5;
+	--active-color: #8E8E8E;
 }
 
 body {

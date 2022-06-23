@@ -2,7 +2,7 @@
     export let width = 24;
     export let height = 24;
 
-    let scaled = 8
+    let scaled = 4;
 </script>
 
 <div class="position">
@@ -14,6 +14,7 @@
 <style>
     .position {
         position: relative;
-        top: 0.3rem;
+        top: 5px;
+        padding-bottom: 4px;
     }
 </style>
