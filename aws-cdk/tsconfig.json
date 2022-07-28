@@ -21,7 +21,11 @@
     "strictPropertyInitialization": false,
     "typeRoots": [
       "./node_modules/@types"
-    ]
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "/opt/nodejs/aws-sdk-utils": ["src/layers/aws-sdk-utils/nodejs/aws-sdk-utils"]
+    }
   },
   "exclude": [
     "node_modules",

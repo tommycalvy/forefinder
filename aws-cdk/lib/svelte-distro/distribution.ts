@@ -81,7 +81,7 @@ export class SvelteDistribution extends Construct {
     constructor(scope: Construct, id: string, props: SvelteDistributionProps) {
         super(scope, id)
 
-        // validate pros and apply defaults
+        // validate props and apply defaults
         checkProps(props)
         const artifactPath = props.artifactPath || DEFAULT_ARTIFACT_PATH
         const staticPath = join(artifactPath, 'static')

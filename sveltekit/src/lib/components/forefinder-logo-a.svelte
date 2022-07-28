@@ -1,0 +1,76 @@
+
+
+<a sveltekit:prefetch href="/home" title="Home">
+	<span class="logo">
+		<h3>forefinder</h3>
+		<div>
+			<svg
+				version="1.1"
+				id="Layer_1"
+				xmlns="http://www.w3.org/2000/svg"
+				xmlns:xlink="http://www.w3.org/1999/xlink"
+				x="2062px"
+				y="2068px"
+				viewBox="0 0 2062 2068"
+				style="enable-background:new 0 0 2062 2068;"
+				xml:space="preserve"
+			>
+				<style type="text/css">
+					.st1 {
+						fill: #99d420;
+					}
+				</style>
+				<path
+					class="st1"
+					d="M1025.3,1197.3c-68.4,0-197.8-10.8-197.8-51.6s129.4-51.6,197.8-51.6c68.4,0,197.8,10.8,197.8,51.6
+	S1093.8,1197.3,1025.3,1197.3z M1025.3,1111c-117,0-180.9,22.9-180.9,34.6s63.8,34.6,180.9,34.6s180.9-22.9,180.9-34.6
+	S1142.4,1111,1025.3,1111L1025.3,1111z"
+				/>
+				<path
+					class="st1"
+					d="M1080,1155.4c-1.7-84.3-2.7-142.9-2.4-144.2c5.5-20.6,70.6-23.6,107-40.4s47.9-75.8,8.4-91.4
+	s-125.8-7.2-142.9,56.8c-1.9,7.2-1.8,98.1-0.7,219.3H1080z"
+				/>
+				<path
+					class="st1"
+					d="M1021.4,1155.4c-2.2-151.6-2.3-351.5-1.8-353.2c7.2-24.3,92.4-27.9,140.1-47.7s62.6-89.5,11-107.9
+	s-164.7-8.6-187,67c-2.7,8.9-3.9,254.2-2.7,441.8L1021.4,1155.4z"
+				/>
+			</svg>
+		</div>
+	</span>
+</a>
+
+<style>
+	a {
+		text-decoration: none;
+	}
+
+	.logo {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		border: none;
+	}
+
+	.logo h3 {
+		color: black;
+		margin: 0;
+		letter-spacing: 0.1rem;
+		font-weight: 400;
+	}
+	
+	.logo div {
+		width: 2rem;
+		height: 2rem;
+		overflow: hidden;
+	}
+
+	.logo div svg {
+		position: relative;
+		width: 7rem;
+		height: 7rem;
+		left: -2.5rem;
+		top: -2.1rem;
+	}
+</style>

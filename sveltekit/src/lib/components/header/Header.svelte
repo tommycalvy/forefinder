@@ -1,14 +1,14 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import HomeFilled from '$lib/icons/home-filled.svelte';
-	import HomeOutlined from '$lib/icons/home-outlined.svelte';
-	import MessageFilled from '$lib/icons/messages-filled.svelte';
-	import MessageOutlined from '$lib/icons/messages-outlined.svelte';
-	import FriendsFilled from '$lib/icons/friends-filled.svelte';
-	import FriendsOutlined from '$lib/icons/friends-outlined.svelte';
+	import HomeFilled from '$lib/components/icons/home-filled.svelte';
+	import HomeOutlined from '$lib/components/icons/home-outlined.svelte';
+	import MessageFilled from '$lib/components/icons/messages-filled.svelte';
+	import MessageOutlined from '$lib/components/icons/messages-outlined.svelte';
+	import FriendsFilled from '$lib/components/icons/friends-filled.svelte';
+	import FriendsOutlined from '$lib/components/icons/friends-outlined.svelte';
 
-	import ForefinderLogo from '$lib/forefinder-logo-a.svelte';
-	import UserFilled from '$lib/icons/user-filled.svelte';
+	import ForefinderLogo from '$lib/components/forefinder-logo-a.svelte';
+	import UserFilled from '$lib/components/icons/user-filled.svelte';
 
 	const nav = [
 		{
@@ -77,6 +77,7 @@
 		margin: 0;
 		min-height: 3.6rem;
 		background-color: var(--pure-white);
+		box-shadow: 0 4px 4px -4px var(--shadow-color);
 	}
 
 	.icon-bar ul {
@@ -129,12 +130,17 @@
 	}
 
 	.bar {
-		border: 0.1rem solid var(--pure-white);
+		/*border: 0.1rem solid var(--pure-white);
+		border-width: 0.2rem; */
+		border: none;
+		background-color: var(--pure-white);
 		margin: 0;
+		height: 0.2rem;
 	}
 
 	.bar.active {
 		border-color: var(--pine-tree-green);
+		background-color: var(--pine-tree-green);
 	}
 
 	.sides {

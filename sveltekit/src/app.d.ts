@@ -2,14 +2,19 @@
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
-declare namespace App {
-	interface Locals {
-		userid: string;
-	}
 
-	// interface Platform {}
 
-	// interface Session {}
+	declare namespace App {
+		interface Locals {
+			session: import('@ory/kratos-client').Session | undefined,
+		}
+	
+		// interface Platform {}
+	
+		interface Session {
+			user: import('$lib/auth').User | undefined,
+		}
+	
+		// interface Stuff {}
+	}	
 
-	// interface Stuff {}
-}

@@ -1,23 +1,38 @@
-import type { Handle } from '@sveltejs/kit';
-import * as cookie from 'cookie';
+import type { GetSession, Handle } from '@sveltejs/kit';
+import { authApi } from '$lib/auth';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const cookies = cookie.parse(event.request.headers.get('cookie') || '');
-	event.locals.userid = cookies['userid'] || crypto.randomUUID();
+	try {
+		const cookies = event.request.headers.get('cookie') ?? undefined;
+		const { status, data } = await authApi.toSession(undefined, cookies, {
+			withCredentials: true
+		});
+		if (status === 401) {
+			event.locals.session = undefined;
+			return await resolve(event);
+		}
+		event.locals.session = data;
 
-	const response = await resolve(event);
+		const response = await resolve(event);
 
-	if (!cookies['userid']) {
-		// if this is the first time the user has visited this app,
-		// set a cookie so that we recognise them when they return
-		response.headers.set(
-			'set-cookie',
-			cookie.serialize('userid', event.locals.userid, {
-				path: '/',
-				httpOnly: true
-			})
-		);
+		return {
+			...response,
+			headers: {
+				...response.headers
+			}
+		};
+	} catch (error) {
+		return await resolve(event);
 	}
-
-	return response;
 };
+
+/** @type {import('@sveltejs/kit').GetSession} */
+export const getSession: GetSession = (event) => {
+	return {
+		user: event.locals.session && {
+			id: event.locals.session.identity.id,
+			email: event.locals.session?.identity?.traits?.email,
+			verified: event.locals.session?.identity?.verifiable_addresses?.[0]?.verified ?? false
+		}
+	};
+}

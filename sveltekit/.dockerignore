@@ -1,0 +1,15 @@
+.DS_Store
+.git
+.svelte-kit
+build
+node_modules
+.dockerignore
+.gitignore
+Dockerfile
+README.md
+.eslintignore
+.eslintrc.cjs
+.prettierignore
+.prettierrc
+playwright.config.ts
+tests

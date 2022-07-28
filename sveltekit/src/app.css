@@ -25,6 +25,9 @@
 	--pine-tree-green-active: #5F9F6B;
 	--hover-color: #E5E5E5;
 	--active-color: #8E8E8E;
+	--shadow-color: #C6C6C6;
+	--hr-line-color: #717272;
+	--top-app-bar-height: 3.6rem;
 }
 
 body {
