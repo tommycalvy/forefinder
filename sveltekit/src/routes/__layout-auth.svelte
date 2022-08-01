@@ -1,7 +1,6 @@
 <script context="module" lang="ts">
 	import type { Load } from '@sveltejs/kit';
-	import config from '$lib/config'
-	import type { GetAuthDataResponse } from "$lib/auth";
+	import type { UiContainer } from "@ory/kratos-client";
 
 	export const load: Load = async ({ session, url, fetch }) => {
 		if (session.user) {
@@ -11,8 +10,8 @@
 			};
 		}
 		const flowType = url.pathname.substring(1);
-
 		const flowId = url.searchParams.get('flow') ?? undefined;
+
 		const headersInit = flowId ? new Headers({
 			flowId: flowId
 		}) : undefined;
@@ -20,27 +19,29 @@
 			headers: headersInit
 		});
 
-		const { status, data: flow } : GetAuthDataResponse = await res.json();
-		console.log(flow)
-		const ui = 'ui' in flow ? flow.ui : undefined
-		const error = 'error' in flow ? flow.error : undefined
+		const body = res.body;
+		const status = res.status;
+		const data = await res.json();
+
+		console.log(status)
+		console.log(data)
 
 		return {
 			props: {
-				ui: ui,
-				error: error
+				status: status,
+				data: data,
 			}
 		};
 	};
 </script>
 
 <script lang="ts">
-	export let flowType: string;
-	export let flowId: string | null;
+	export let status;
+	export let data;
+	console.log(status);
+	console.log(data);
 </script>
 
 <main>
-	<h1> flowType: {flowType} </h1>
-	<h1>flowId: {flowId}</h1>
 	<slot />
 </main>

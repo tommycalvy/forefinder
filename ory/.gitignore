@@ -1,2 +1,3 @@
 kratos/**
 .env
+postgres-data/**

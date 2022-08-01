@@ -1,7 +1,7 @@
 import type { RequestHandlerOutput } from '@sveltejs/kit';
-import { Configuration, V0alpha2Api } from '@ory/kratos-client';
+import { Configuration, V0alpha2Api  } from '@ory/kratos-client';
 import type {
-	SelfServiceError,
+	GenericError,
 	SelfServiceLoginFlow,
 	SelfServiceRecoveryFlow,
 	SelfServiceRegistrationFlow,
@@ -25,7 +25,7 @@ export interface User {
 	verified: boolean;
 }
 
-export type TAuthFlow =
+export type AuthFlow =
 	| SelfServiceLoginFlow
 	| SelfServiceRegistrationFlow
 	| SelfServiceRecoveryFlow
@@ -40,138 +40,252 @@ export type FlowType =
 	| 'recovery'
 	| 'error';
 
-const isFlowType = (flow: string): flow is FlowType => {
+export const isFlowType = (flow: string): flow is FlowType => {
 	return ['registration', 'login', 'settings', 'verification', 'recovery', 'error'].includes(flow);
 };
 
-export const authFlowMap: Record<string, string> = {
-	registration: 'getSelfServiceRegistrationFlow',
-	recovery: 'getSelfServiceRecoveryFlow',
-	verification: 'getSelfServiceVerificationFlow',
-	settings: 'getSelfServiceSettingsFlow',
-	error: 'getSelfServiceError',
-	login: 'getSelfServiceLoginFlow'
+export type InitFlowType = 'registration' | 'login' | 'settings' | 'verification' | 'recovery';
+
+const isInitFlowType = (flow: string): flow is InitFlowType => {
+	return ['registration', 'login', 'settings', 'verification', 'recovery'].includes(flow);
 };
 
-export interface GetAuthFlowParams {
-	flowType: string;
-	flowId: string | undefined;
-	cookie: string | undefined;
-	returnTo: string | undefined;
-	error: string | undefined;
+const handleInitFlowError = (error: AuthFlow | GenericError): RequestHandlerOutput => {
+	console.log(error);
+	switch (error.id) {
+		case 'session_already_available': {
+			const redirectTo = '/';
+			return {
+				status: 400,
+				body: JSON.stringify(redirectTo),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}
+		}
+		case 'session_aal1_required': {
+			const redirectTo = '/login';
+			return {
+				status: 400,
+				body: JSON.stringify(redirectTo),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}
+		}
+		case 'security_csrf_violation': {
+			const redirectTo = '/login';
+			return {
+				status: 400,
+				body: JSON.stringify(redirectTo),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}
+		}
+		case 'security_identity_mismatch': {
+			const redirectTo = '/login';
+			return {
+				status: 400,
+				body: JSON.stringify(redirectTo),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}
+		}
+		default: {
+			const redirectTo = '/login';
+			return {
+				status: 400,
+				body: JSON.stringify(redirectTo),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}
+		}
+	}
 }
 
-export interface GetAuthDataResponse {
-	status: number;
-	data: TAuthFlow | SelfServiceError;
+export interface InitFlowParams {
+	flowType: string, 
+	refresh: boolean | undefined, 
+	aal: string | undefined
+	returnTo: string | undefined,
 }
 
-export const getAuthFlow = async ({
-	flowType,
-	flowId,
-	cookie,
-	returnTo,
-	error
-}: GetAuthFlowParams): Promise<RequestHandlerOutput> => {
+export const initFlow = async({ flowType, refresh, aal, returnTo } : InitFlowParams): Promise<RequestHandlerOutput> => {
+	try {
+		if (!isInitFlowType(flowType)) {
+			throw new Error(`flow: ${flowType} doesn't exist in InitFlowType`);
+		}
+
+		switch (flowType) {
+			case 'login': {
+				const { status, data } = await auth.initializeSelfServiceLoginFlowForBrowsers(refresh, aal, returnTo);
+				if (status === 200) {
+					return {
+						status,
+						body: JSON.stringify(data),
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					}
+				} else {
+					return handleInitFlowError(data)
+				}
+			}
+			case 'recovery': {
+				const {status, data } = await auth.initializeSelfServiceRecoveryFlowForBrowsers(returnTo);
+				if (status === 200) {
+					return {
+						status,
+						body: JSON.stringify(data),
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					}
+				} else {
+					return handleInitFlowError(data)
+				}
+			}
+			case 'registration': {
+				const {status, data } = await auth.initializeSelfServiceRegistrationFlowForBrowsers(returnTo);
+				if (status === 200) {
+					return {
+						status,
+						body: JSON.stringify(data),
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					}
+				} else {
+					return handleInitFlowError(data)
+				}
+			}
+			case 'settings': {
+				const {status, data } = await auth.initializeSelfServiceSettingsFlowForBrowsers(returnTo);
+				if (status === 200) {
+					return {
+						status,
+						body: JSON.stringify(data),
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					}
+				} else {
+					return handleInitFlowError(data)
+				}
+			}
+			case 'verification': {
+				const {status, data } = await auth.initializeSelfServiceVerificationFlowForBrowsers(returnTo);
+				if (status === 200) {
+					return {
+						status,
+						body: JSON.stringify(data),
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					}
+				} else {
+					return handleInitFlowError(data)
+				}
+			}
+		}
+	} catch (error) {
+		console.log(error)
+		const redirectTo = '/login';
+		return {
+			status: 400,
+			body: JSON.stringify(redirectTo),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		}
+	}
+}
+
+export const getFlowError = async(error: string): Promise<RequestHandlerOutput> => {
+	const { status, data } = await auth.getSelfServiceError(error);
+	return {
+		body: JSON.stringify(data),
+		status,
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	}
+}
+
+export const getFlow = async (flowType: string, flowId: string, cookie: string): Promise<RequestHandlerOutput> => {
 	try {
 		if (!isFlowType(flowType)) {
 			throw new Error(`flow: ${flowType} doesn't exist in FlowType`);
 		}
-
-		let authPromise: Promise<GetAuthDataResponse>;
-
 		switch (flowType) {
-			case 'error': {
-				if (error) {
-					authPromise = auth.getSelfServiceError(error);
-				} else {
-					throw new Error('error is undefined');
-				}
-				break;
-			}
 			case 'login': {
-				if (flowId) {
-					if (cookie) {
-						authPromise = auth.getSelfServiceLoginFlow(flowId, cookie);
-					} else {
-						throw new Error('no cookie present with flowType of login');
+				const { status, data } = await auth.getSelfServiceLoginFlow(flowId, cookie);
+				return {
+					body: JSON.stringify(data),
+					status,
+					headers: {
+						'Content-Type': 'application/json'
 					}
-				} else {
-					authPromise = auth.initializeSelfServiceLoginFlowForBrowsers(false, undefined, returnTo);
-				}
-				break;
+				};
 			}
 			case 'recovery': {
-				if (flowId) {
-					if (cookie) {
-						authPromise = auth.getSelfServiceRecoveryFlow(flowId, cookie);
-					} else {
-						throw new Error('no cookie present with flowType of recovery');
+				const { status, data } = await auth.getSelfServiceRecoveryFlow(flowId, cookie);
+				return {
+					body: JSON.stringify(data),
+					status,
+					headers: {
+						'Content-Type': 'application/json'
 					}
-				} else {
-					authPromise = auth.initializeSelfServiceRecoveryFlowForBrowsers(returnTo);
-				}
-				break;
+				};
 			}
 			case 'registration': {
-				if (flowId) {
-					if (cookie) {
-						authPromise = auth.getSelfServiceRegistrationFlow(flowId, cookie);
-					} else {
-						throw new Error('no cookie present with flowType of registration');
+				const { status, data } = await auth.getSelfServiceRegistrationFlow(flowId, cookie);
+				return {
+					body: JSON.stringify(data),
+					status,
+					headers: {
+						'Content-Type': 'application/json'
 					}
-				} else {
-					authPromise = auth.initializeSelfServiceRegistrationFlowForBrowsers(returnTo);
-				}
-				break;
+				};
 			}
 			case 'settings': {
-				if (flowId) {
-					if (cookie) {
-						authPromise = auth.getSelfServiceSettingsFlow(flowId, undefined, cookie);
-					} else {
-						throw new Error('no cookie present with flowType of settings');
+				const { status, data } = await auth.getSelfServiceSettingsFlow(flowId, undefined, cookie);
+				return {
+					body: JSON.stringify(data),
+					status,
+					headers: {
+						'Content-Type': 'application/json'
 					}
-				} else {
-					authPromise = auth.initializeSelfServiceSettingsFlowForBrowsers(returnTo);
-				}
-				break;
+				};
 			}
 			case 'verification': {
-				if (flowId) {
-					if (cookie) {
-						authPromise = auth.getSelfServiceVerificationFlow(flowId, cookie);
-					} else {
-						throw new Error('no cookie present with flowType of verification');
+				const { status, data } = await auth.getSelfServiceVerificationFlow(flowId, cookie);
+				return {
+					body: JSON.stringify(data),
+					status,
+					headers: {
+						'Content-Type': 'application/json'
 					}
-				} else {
-					authPromise = auth.initializeSelfServiceVerificationFlowForBrowsers(returnTo);
-				}
-				break;
+				};
 			}
 			default: {
-				authPromise = auth.initializeSelfServiceLoginFlowForBrowsers(false, undefined, returnTo);
-				break;
+				const error = 'Flow type does not exist'
+				return {
+					body: JSON.stringify(error),
+					status: 400,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				}
 			}
 		}
-
-		const { status, data }: GetAuthDataResponse = await authPromise;
-
-		const jsonData = JSON.stringify(data);
-
-		return {
-			body: jsonData,
-			status,
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		};
 	} catch (error) {
-		const jsonError = JSON.stringify(error);
-
 		return {
-			body: jsonError,
-			status: 500,
+			body: JSON.stringify(error),
+			status: 400,
 			headers: {
 				'Content-Type': 'application/json'
 			}
