@@ -1,13 +1,5 @@
 import type { RequestHandlerOutput } from '@sveltejs/kit';
 import { Configuration, V0alpha2Api  } from '@ory/kratos-client';
-import type {
-	GenericError,
-	SelfServiceLoginFlow,
-	SelfServiceRecoveryFlow,
-	SelfServiceRegistrationFlow,
-	SelfServiceSettingsFlow,
-	SelfServiceVerificationFlow
-} from '@ory/kratos-client';
 import config from '$lib/config';
 
 export const auth = new V0alpha2Api(
@@ -24,13 +16,6 @@ export interface User {
 	email: string;
 	verified: boolean;
 }
-
-export type AuthFlow =
-	| SelfServiceLoginFlow
-	| SelfServiceRegistrationFlow
-	| SelfServiceRecoveryFlow
-	| SelfServiceSettingsFlow
-	| SelfServiceVerificationFlow;
 
 export type FlowType =
 	| 'registration'
@@ -50,9 +35,9 @@ const isInitFlowType = (flow: string): flow is InitFlowType => {
 	return ['registration', 'login', 'settings', 'verification', 'recovery'].includes(flow);
 };
 
-const handleInitFlowError = (error: AuthFlow | GenericError): RequestHandlerOutput => {
+const handleInitFlowError = (error: string): RequestHandlerOutput => {
 	console.log(error);
-	switch (error.id) {
+	switch (error) {
 		case 'session_already_available': {
 			const redirectTo = '/';
 			return {
@@ -121,73 +106,93 @@ export const initFlow = async({ flowType, refresh, aal, returnTo } : InitFlowPar
 
 		switch (flowType) {
 			case 'login': {
-				const { status, data } = await auth.initializeSelfServiceLoginFlowForBrowsers(refresh, aal, returnTo);
+				const { status, data, headers } = await auth.initializeSelfServiceLoginFlowForBrowsers(refresh, aal, returnTo);
 				if (status === 200) {
+					console.log('Initializing Login Flow');
+					console.log('Ory data')
+					console.log(data)
+					console.log('Ory headers')
+					console.log(headers)
 					return {
 						status,
 						body: JSON.stringify(data),
 						headers: {
-							'Content-Type': 'application/json'
+							'cache-control': headers['cache-control'],
+							'content-type': headers['content-type'],
+							'set-cookie': headers['set-cookie'],
 						}
 					}
 				} else {
-					return handleInitFlowError(data)
+					console.log(data);
+					return handleInitFlowError(data.id);
 				}
 			}
 			case 'recovery': {
-				const {status, data } = await auth.initializeSelfServiceRecoveryFlowForBrowsers(returnTo);
+				const {status, data, headers } = await auth.initializeSelfServiceRecoveryFlowForBrowsers(returnTo);
 				if (status === 200) {
 					return {
 						status,
 						body: JSON.stringify(data),
 						headers: {
-							'Content-Type': 'application/json'
+							'cache-control': headers['cache-control'],
+							'content-type': headers['content-type'],
+							'set-cookie': headers['set-cookie'],
 						}
 					}
 				} else {
-					return handleInitFlowError(data)
+					console.log(data);
+					return handleInitFlowError(data.id);
 				}
 			}
 			case 'registration': {
-				const {status, data } = await auth.initializeSelfServiceRegistrationFlowForBrowsers(returnTo);
+				const {status, data, headers } = await auth.initializeSelfServiceRegistrationFlowForBrowsers(returnTo);
 				if (status === 200) {
 					return {
 						status,
 						body: JSON.stringify(data),
 						headers: {
-							'Content-Type': 'application/json'
+							'cache-control': headers['cache-control'],
+							'content-type': headers['content-type'],
+							'set-cookie': headers['set-cookie'],
 						}
 					}
 				} else {
-					return handleInitFlowError(data)
+					console.log(data);
+					return handleInitFlowError(data.id);
 				}
 			}
 			case 'settings': {
-				const {status, data } = await auth.initializeSelfServiceSettingsFlowForBrowsers(returnTo);
+				const {status, data, headers } = await auth.initializeSelfServiceSettingsFlowForBrowsers(returnTo);
 				if (status === 200) {
 					return {
 						status,
 						body: JSON.stringify(data),
 						headers: {
-							'Content-Type': 'application/json'
+							'cache-control': headers['cache-control'],
+							'content-type': headers['content-type'],
+							'set-cookie': headers['set-cookie'],
 						}
 					}
 				} else {
-					return handleInitFlowError(data)
+					console.log(data);
+					return handleInitFlowError(data.id);
 				}
 			}
 			case 'verification': {
-				const {status, data } = await auth.initializeSelfServiceVerificationFlowForBrowsers(returnTo);
+				const {status, data, headers } = await auth.initializeSelfServiceVerificationFlowForBrowsers(returnTo);
 				if (status === 200) {
 					return {
 						status,
 						body: JSON.stringify(data),
 						headers: {
-							'Content-Type': 'application/json'
+							'cache-control': headers['cache-control'],
+							'content-type': headers['content-type'],
+							'set-cookie': headers['set-cookie'],
 						}
 					}
 				} else {
-					return handleInitFlowError(data)
+					console.log(data);
+					return handleInitFlowError(data.id);
 				}
 			}
 		}
@@ -195,7 +200,7 @@ export const initFlow = async({ flowType, refresh, aal, returnTo } : InitFlowPar
 		console.log(error)
 		const redirectTo = '/login';
 		return {
-			status: 400,
+			status: 500,
 			body: JSON.stringify(redirectTo),
 			headers: {
 				'Content-Type': 'application/json'
@@ -222,7 +227,11 @@ export const getFlow = async (flowType: string, flowId: string, cookie: string):
 		}
 		switch (flowType) {
 			case 'login': {
-				const { status, data } = await auth.getSelfServiceLoginFlow(flowId, cookie);
+				const { status, data, headers } = await auth.getSelfServiceLoginFlow(flowId, cookie);
+				console.log('Getting Flow Data');
+				console.log(data);
+				console.log('Ory Headers');
+				console.log(headers);
 				return {
 					body: JSON.stringify(data),
 					status,

@@ -28,25 +28,27 @@ export const get: RequestHandler = async (event: RequestEvent): Promise<RequestH
             }
         }
 
-		const flowId = event.request.headers.get('flowId') ?? undefined;
+		const flowId = event.request.headers.get('flow_id') ?? undefined;
 		const cookie = event.request.headers.get('cookie') ?? undefined;
 
         if (flowId && cookie) {
+            console.log('get flow')
             return getFlow(flowType, flowId, cookie)
         }
 
         const refresh = event.request.headers.get('refresh') === 'true' ? true : false;
 
         const aal = event.request.headers.get('aal') ?? undefined;
-		const returnTo = event.request.headers.get('redirect') ?? undefined;
+		const returnTo = event.request.headers.get('return_to') ?? undefined;
 		
+        console.log('init flow')
         return initFlow({flowType, refresh, aal, returnTo});
 
        
     } catch (error) {
         console.log(error)
         return {
-            status: 400
+            status: 500
         }
     }
 };

@@ -1,5 +1,5 @@
 <script context="module" lang="ts">
-	export const prerender = true;
+	
 </script>
 
 <script>
@@ -18,7 +18,7 @@
 	<br />
 	<br />
 	{#if !user}
-		<button>Log In with Cognito</button>
+		<a href="/login"><button>Log In</button></a>
 	{:else}
 		<button>Log Out</button>
 	{/if}

@@ -13,7 +13,6 @@
 </script>
 
 <script lang="ts">
-	import { session } from "$app/stores";
 	import '../app.css';
 	import Header from '$lib/components/header/Header.svelte';
 </script>

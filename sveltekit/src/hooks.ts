@@ -1,10 +1,10 @@
 import type { GetSession, Handle } from '@sveltejs/kit';
-import { authApi } from '$lib/auth';
+import { auth } from '$lib/auth';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	try {
 		const cookies = event.request.headers.get('cookie') ?? undefined;
-		const { status, data } = await authApi.toSession(undefined, cookies, {
+		const { status, data } = await auth.toSession(undefined, cookies, {
 			withCredentials: true
 		});
 		if (status === 401) {
