@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { UiNodeInputAttributes, UiText } from '@ory/kratos-client';
+    import FormTextInput from "./form-text-input.svelte";
 
     export let attributes: UiNodeInputAttributes;
     export let messages: Array<UiText> | undefined;
@@ -7,19 +8,15 @@
 </script>
 
 
-<fieldset class="input-fieldset">
-    <div class="input-inner">
-        <label>
-            <input
-                class="input"
-                type="password"
-                name={attributes.name}
-                required={attributes.required}
-                value={attributes.value}
-                disabled={attributes.disabled}
-                placeholder={attributes.label?.text}
-            />
-        </label>
+<fieldset>
+    <div>
+        <FormTextInput 
+            type="password"
+            name={attributes.name}
+            required={attributes.required}
+            value=""
+            label="Password"
+        />
     </div>
     {#if messages}
         {#each messages as message}
@@ -29,3 +26,11 @@
         {/each}
     {/if}
 </fieldset>
+
+<style>
+
+    fieldset {
+        border: none;
+    }
+
+</style>

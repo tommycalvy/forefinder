@@ -24,10 +24,9 @@
 		});
         
 		if (!res.ok) {
-			const redirectTo = await res.json();
 			return {
 				status: 302,
-				redirect: redirectTo
+				redirect: '/login'
 			};
 		}
         
@@ -52,7 +51,7 @@
 	import type { UiContainer, AuthenticatorAssuranceLevel } from '@ory/kratos-client';
 	import '../app.css';
     import { isUiNodeInputAttributes } from "$lib/utils/ui";
-    import InputText from "$lib/components/auth/input-text.svelte";
+    import InputEmail from "$lib/components/auth/input-email.svelte";
     import InputPassword from "$lib/components/auth/input-password.svelte";
 
 	export let ui: UiContainer;
@@ -80,15 +79,15 @@
 			{/if}
 			{#each ui.nodes as { attributes, messages } }
 				{#if isUiNodeInputAttributes(attributes)}
-                    {#if attributes.type === "text" }
-                        <InputText {attributes} {messages} />
-                    {/if}
                     {#if attributes.type === "hidden" }
                         <input
                             name={attributes.name}
                             type="hidden"
                             value={attributes.value} 
                         />
+                    {/if}
+                    {#if attributes.type === "text" }
+                        <InputEmail {attributes} {messages} />
                     {/if}
                     {#if attributes.type === "password" }
                         <InputPassword {attributes} {messages} />
@@ -105,4 +104,26 @@
         justify-content: center;
         padding-top: 8rem;
 	}
+
+    .card {
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        background-color: var(--pure-white);
+        padding: 3rem 2rem;
+        box-shadow: 0 4px 4px -4px var(--shadow-color);
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    form {
+        display: flex;
+        justify-content: flex-start;
+        flex-direction: column;
+        
+    }
+
 </style>
