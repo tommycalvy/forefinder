@@ -55,15 +55,16 @@
 	.input-label {
 		position: absolute;
 		color: var(--input-label-color);
-		margin-top: 1rem;
+		
         /*
 		margin-left: -21.1rem;
         TODO: try transform-origin in the ory login page
         */
-        margin-left: -10rem;
-        left: 50%;
-        float: left;
-        transform: translateX(-50%);
+        display: block;
+        transform-origin: left top;
+        margin-top: -2rem;
+        margin-left: 1rem;
+
 		pointer-events: none;
 		z-index: 1;
 		white-space: nowrap;
@@ -77,7 +78,7 @@
 
 	input:focus ~ .input-label,
 	input:not(:placeholder-shown) ~ .input-label {
-		transform: translate(-0.72rem, -1.6rem) scale(0.75);
+		transform: translateY(-1.45rem) scale(0.75);
 		font-weight: 400;
 	}
 
@@ -122,8 +123,9 @@
 		visibility: hidden;
         font-size: 0.75rem;
         pointer-events: none;
-        margin: 0 0.7rem;
+        margin: 0 0.64rem;
         float: left;
+        padding: 0 0.2rem;
 	}
 
 </style>
