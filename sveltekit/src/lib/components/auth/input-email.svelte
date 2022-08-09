@@ -7,17 +7,15 @@
 
 </script>
 
-
 <fieldset>
-    <div>
-        <FormTextInput 
-            type="email"
-            name={attributes.name}
-            required={attributes.required}
-            value=""
-            label="Email Address"
-        />
-    </div>
+    <FormTextInput 
+        type="email"
+        name={attributes.name}
+        required={attributes.required}
+        value=""
+        label="Email Address"
+    />
+  
     {#if messages}
         {#each messages as message}
             <div class="typography-caption">
@@ -28,9 +26,10 @@
 </fieldset>
 
 <style>
-
     fieldset {
         border: none;
     }
-
 </style>
+    
+
+
