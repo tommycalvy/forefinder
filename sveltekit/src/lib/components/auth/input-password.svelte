@@ -14,8 +14,8 @@
             type="password"
             name={attributes.name}
             required={attributes.required}
-            value=""
             label="Password"
+            disabled={attributes.disabled}
         />
     </div>
     {#if messages}
@@ -31,6 +31,8 @@
 
     fieldset {
         border: none;
+        padding: 0;
+        margin: 0;
     }
 
 </style>

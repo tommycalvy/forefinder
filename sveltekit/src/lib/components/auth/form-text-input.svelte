@@ -1,14 +1,14 @@
 <script lang="ts">
 	export let type: string;
 	export let name: string;
-	export let required: boolean | null | undefined;
-	export let value: string;
-
+	export let required: boolean | null | undefined = undefined;
+	export let value: string = "";
+	export let disabled: boolean | null | undefined = undefined;
 	export let label: string;
 </script>
 
 <label>
-    <input {type} {name} {required} {value} placeholder=" " />
+    <input {type} {name} {required} {value} {disabled} placeholder=" "/>
     <span class="input-label">{label}</span>
     <fieldset>
         <legend>{label}</legend>

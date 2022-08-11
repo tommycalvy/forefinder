@@ -12,8 +12,9 @@
         type="email"
         name={attributes.name}
         required={attributes.required}
-        value=""
+        value={attributes.value}
         label="Email Address"
+        disabled={attributes.disabled}
     />
   
     {#if messages}
@@ -28,6 +29,8 @@
 <style>
     fieldset {
         border: none;
+        padding: 0;
+        margin: 0;
     }
 </style>
     

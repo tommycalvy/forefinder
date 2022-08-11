@@ -1,5 +1,20 @@
 import type { RequestHandlerOutput } from '@sveltejs/kit';
-import { Configuration, V0alpha2Api  } from '@ory/kratos-client';
+import {
+	Configuration,
+	V0alpha2Api,
+	type SubmitSelfServiceRecoveryFlowWithLinkMethodBody,
+	type SubmitSelfServiceRegistrationFlowWithOidcMethodBody,
+	type SubmitSelfServiceSettingsFlowBody,
+	type SubmitSelfServiceSettingsFlowWithOidcMethodBody
+} from '@ory/kratos-client';
+import type {
+	SubmitSelfServiceLoginFlowWithOidcMethodBody,
+	SubmitSelfServiceLoginFlowWithPasswordMethodBody,
+	SubmitSelfServiceLoginFlowBody,
+	SubmitSelfServiceRecoveryFlowBody,
+	SubmitSelfServiceRegistrationFlowBody,
+	SubmitSelfServiceRegistrationFlowWithPasswordMethodBody
+} from '@ory/kratos-client';
 import config from '$lib/config';
 
 export const auth = new V0alpha2Api(
@@ -29,12 +44,6 @@ export const isFlowType = (flow: string): flow is FlowType => {
 	return ['registration', 'login', 'settings', 'verification', 'recovery', 'error'].includes(flow);
 };
 
-export type InitFlowType = 'registration' | 'login' | 'settings' | 'verification' | 'recovery';
-
-const isInitFlowType = (flow: string): flow is InitFlowType => {
-	return ['registration', 'login', 'settings', 'verification', 'recovery'].includes(flow);
-};
-
 const handleInitFlowError = (error: string): RequestHandlerOutput => {
 	console.log(error);
 	switch (error) {
@@ -46,7 +55,7 @@ const handleInitFlowError = (error: string): RequestHandlerOutput => {
 				headers: {
 					'Content-Type': 'application/json'
 				}
-			}
+			};
 		}
 		case 'session_aal1_required': {
 			const redirectTo = '/login';
@@ -56,7 +65,7 @@ const handleInitFlowError = (error: string): RequestHandlerOutput => {
 				headers: {
 					'Content-Type': 'application/json'
 				}
-			}
+			};
 		}
 		case 'security_csrf_violation': {
 			const redirectTo = '/login';
@@ -66,7 +75,7 @@ const handleInitFlowError = (error: string): RequestHandlerOutput => {
 				headers: {
 					'Content-Type': 'application/json'
 				}
-			}
+			};
 		}
 		case 'security_identity_mismatch': {
 			const redirectTo = '/login';
@@ -76,7 +85,7 @@ const handleInitFlowError = (error: string): RequestHandlerOutput => {
 				headers: {
 					'Content-Type': 'application/json'
 				}
-			}
+			};
 		}
 		default: {
 			const redirectTo = '/login';
@@ -86,49 +95,51 @@ const handleInitFlowError = (error: string): RequestHandlerOutput => {
 				headers: {
 					'Content-Type': 'application/json'
 				}
-			}
+			};
 		}
 	}
-}
+};
 
 export interface InitFlowParams {
-	flowType: string, 
-	refresh: boolean | undefined, 
-	aal: string | undefined
-	returnTo: string | undefined,
+	flowType: FlowType;
+	refresh: boolean | undefined;
+	aal: string | undefined;
+	returnTo: string | undefined;
 }
 
-export const initFlow = async({ flowType, refresh, aal, returnTo } : InitFlowParams): Promise<RequestHandlerOutput> => {
+export const initFlow = async ({
+	flowType,
+	refresh,
+	aal,
+	returnTo
+}: InitFlowParams): Promise<RequestHandlerOutput> => {
 	try {
-		if (!isInitFlowType(flowType)) {
-			throw new Error(`flow: ${flowType} doesn't exist in InitFlowType`);
-		}
-
 		switch (flowType) {
 			case 'login': {
-				const { status, data, headers } = await auth.initializeSelfServiceLoginFlowForBrowsers(refresh, aal, returnTo);
+				const { status, data, headers } = await auth.initializeSelfServiceLoginFlowForBrowsers(
+					refresh,
+					aal,
+					returnTo
+				);
 				if (status === 200) {
-					console.log('Initializing Login Flow');
-					console.log('Ory data')
-					console.log(data)
-					console.log('Ory headers')
-					console.log(headers)
 					return {
 						status,
 						body: JSON.stringify(data),
 						headers: {
 							'cache-control': headers['cache-control'],
 							'content-type': headers['content-type'],
-							'set-cookie': headers['set-cookie'],
+							'set-cookie': headers['set-cookie']
 						}
-					}
+					};
 				} else {
 					console.log(data);
 					return handleInitFlowError(data.id);
 				}
 			}
 			case 'recovery': {
-				const {status, data, headers } = await auth.initializeSelfServiceRecoveryFlowForBrowsers(returnTo);
+				const { status, data, headers } = await auth.initializeSelfServiceRecoveryFlowForBrowsers(
+					returnTo
+				);
 				if (status === 200) {
 					return {
 						status,
@@ -136,16 +147,17 @@ export const initFlow = async({ flowType, refresh, aal, returnTo } : InitFlowPar
 						headers: {
 							'cache-control': headers['cache-control'],
 							'content-type': headers['content-type'],
-							'set-cookie': headers['set-cookie'],
+							'set-cookie': headers['set-cookie']
 						}
-					}
+					};
 				} else {
 					console.log(data);
 					return handleInitFlowError(data.id);
 				}
 			}
 			case 'registration': {
-				const {status, data, headers } = await auth.initializeSelfServiceRegistrationFlowForBrowsers(returnTo);
+				const { status, data, headers } =
+					await auth.initializeSelfServiceRegistrationFlowForBrowsers(returnTo);
 				if (status === 200) {
 					return {
 						status,
@@ -153,16 +165,18 @@ export const initFlow = async({ flowType, refresh, aal, returnTo } : InitFlowPar
 						headers: {
 							'cache-control': headers['cache-control'],
 							'content-type': headers['content-type'],
-							'set-cookie': headers['set-cookie'],
+							'set-cookie': headers['set-cookie']
 						}
-					}
+					};
 				} else {
 					console.log(data);
 					return handleInitFlowError(data.id);
 				}
 			}
 			case 'settings': {
-				const {status, data, headers } = await auth.initializeSelfServiceSettingsFlowForBrowsers(returnTo);
+				const { status, data, headers } = await auth.initializeSelfServiceSettingsFlowForBrowsers(
+					returnTo
+				);
 				if (status === 200) {
 					return {
 						status,
@@ -170,16 +184,17 @@ export const initFlow = async({ flowType, refresh, aal, returnTo } : InitFlowPar
 						headers: {
 							'cache-control': headers['cache-control'],
 							'content-type': headers['content-type'],
-							'set-cookie': headers['set-cookie'],
+							'set-cookie': headers['set-cookie']
 						}
-					}
+					};
 				} else {
 					console.log(data);
 					return handleInitFlowError(data.id);
 				}
 			}
 			case 'verification': {
-				const {status, data, headers } = await auth.initializeSelfServiceVerificationFlowForBrowsers(returnTo);
+				const { status, data, headers } =
+					await auth.initializeSelfServiceVerificationFlowForBrowsers(returnTo);
 				if (status === 200) {
 					return {
 						status,
@@ -187,29 +202,37 @@ export const initFlow = async({ flowType, refresh, aal, returnTo } : InitFlowPar
 						headers: {
 							'cache-control': headers['cache-control'],
 							'content-type': headers['content-type'],
-							'set-cookie': headers['set-cookie'],
+							'set-cookie': headers['set-cookie']
 						}
-					}
+					};
 				} else {
 					console.log(data);
 					return handleInitFlowError(data.id);
 				}
 			}
+			default: {
+				const error = 'Flow type does not exist';
+				return {
+					body: JSON.stringify(error),
+					status: 400,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				};
+			}
 		}
 	} catch (error) {
-		console.log(error)
-		const redirectTo = '/login';
 		return {
 			status: 500,
-			body: JSON.stringify(redirectTo),
+			body: JSON.stringify(error),
 			headers: {
 				'Content-Type': 'application/json'
 			}
-		}
+		};
 	}
-}
+};
 
-export const getFlowError = async(error: string): Promise<RequestHandlerOutput> => {
+export const getFlowError = async (error: string): Promise<RequestHandlerOutput> => {
 	const { status, data } = await auth.getSelfServiceError(error);
 	return {
 		body: JSON.stringify(data),
@@ -217,21 +240,18 @@ export const getFlowError = async(error: string): Promise<RequestHandlerOutput> 
 		headers: {
 			'Content-Type': 'application/json'
 		}
-	}
-}
+	};
+};
 
-export const getFlow = async (flowType: string, flowId: string, cookie: string): Promise<RequestHandlerOutput> => {
+export const getFlow = async (
+	flowType: FlowType,
+	flowId: string,
+	cookie: string
+): Promise<RequestHandlerOutput> => {
 	try {
-		if (!isFlowType(flowType)) {
-			throw new Error(`flow: ${flowType} doesn't exist in FlowType`);
-		}
 		switch (flowType) {
 			case 'login': {
-				const { status, data, headers } = await auth.getSelfServiceLoginFlow(flowId, cookie);
-				console.log('Getting Flow Data');
-				console.log(data);
-				console.log('Ory Headers');
-				console.log(headers);
+				const { status, data } = await auth.getSelfServiceLoginFlow(flowId, cookie);
 				return {
 					body: JSON.stringify(data),
 					status,
@@ -281,20 +301,345 @@ export const getFlow = async (flowType: string, flowId: string, cookie: string):
 				};
 			}
 			default: {
-				const error = 'Flow type does not exist'
+				const error = 'Flow type does not exist';
 				return {
 					body: JSON.stringify(error),
 					status: 400,
 					headers: {
 						'Content-Type': 'application/json'
 					}
-				}
+				};
 			}
 		}
 	} catch (error) {
 		return {
 			body: JSON.stringify(error),
-			status: 400,
+			status: 500,
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		};
+	}
+};
+
+export const getSubmitSelfServiceLoginFlowBody = (
+	formData: FormData
+): {
+	flowBody?: SubmitSelfServiceLoginFlowBody;
+	error?: Error;
+} => {
+	const method = formData.get('method') ?? undefined;
+	if (typeof method !== 'string') {
+		return {
+			error: new Error('No method attribute in post body')
+		};
+	}
+	const csrf_token = formData.get('csrf_token') ?? undefined;
+	if (method === 'oidc') {
+		const provider = formData.get('provider') ?? undefined;
+		if (typeof provider === 'string' && typeof csrf_token === 'string') {
+			const flowBody: SubmitSelfServiceLoginFlowWithOidcMethodBody = {
+				csrf_token,
+				provider,
+				method
+			};
+			return { flowBody };
+		}
+		return {
+			error: new Error('Incorrect form data')
+		};
+	} else if (method === 'password') {
+		const identifier = formData.get('identifier') ?? undefined;
+		const password = formData.get('password') ?? undefined;
+		if (
+			typeof identifier === 'string' &&
+			typeof password === 'string' &&
+			typeof csrf_token === 'string'
+		) {
+			const flowBody: SubmitSelfServiceLoginFlowWithPasswordMethodBody = {
+				csrf_token,
+				identifier,
+				password,
+				method
+			};
+			return { flowBody };
+		}
+		return {
+			error: new Error('Incorrect form data')
+		};
+	}
+	return {
+		error: new Error('Login method not supported')
+	};
+};
+
+export const getSubmitSelfServiceRecoveryFlowBody = (
+	formData: FormData
+): { flowBody?: SubmitSelfServiceRecoveryFlowBody; error?: Error } => {
+	const method = formData.get('method') ?? undefined;
+	if (typeof method !== 'string') {
+		return {
+			error: new Error('No method attribute in post body')
+		};
+	}
+	if (method === 'link') {
+		const email = formData.get('email') ?? undefined;
+		const csrf_token = formData.get('csrf_token') ?? undefined;
+		if (typeof email === 'string' && typeof csrf_token === 'string') {
+			const flowBody: SubmitSelfServiceRecoveryFlowWithLinkMethodBody = {
+				csrf_token,
+				email,
+				method
+			};
+			return { flowBody };
+		}
+	}
+	return {
+		error: new Error('Recovery method not supported')
+	};
+};
+
+export const getSubmitSelfServiceRegistrationFlowBody = (
+	formData: FormData,
+	traits: object
+): { flowBody?: SubmitSelfServiceRegistrationFlowBody; error?: Error } => {
+	const method = formData.get('method') ?? undefined;
+	if (typeof method !== 'string') {
+		return {
+			error: new Error('No method attribute in post body')
+		};
+	}
+	const csrf_token = formData.get('csrf_token') ?? undefined;
+	if (method === 'oidc') {
+		const provider = formData.get('provider') ?? undefined;
+		if (typeof provider === 'string' && typeof csrf_token === 'string') {
+			const flowBody: SubmitSelfServiceRegistrationFlowWithOidcMethodBody = {
+				csrf_token,
+				provider,
+				method,
+				traits
+			};
+			return { flowBody };
+		}
+		return {
+			error: new Error('Incorrect form data')
+		};
+	} else if (method === 'password') {
+		const password = formData.get('password') ?? undefined;
+		if (typeof password === 'string' && typeof csrf_token === 'string') {
+			const flowBody: SubmitSelfServiceRegistrationFlowWithPasswordMethodBody = {
+				csrf_token,
+				password,
+				method,
+				traits
+			};
+			return { flowBody };
+		}
+		return {
+			error: new Error('Incorrect form data')
+		};
+	}
+	return {
+		error: new Error('Registration method not supported')
+	};
+};
+
+export const getSubmitSelfServiceSettingsFlowBody = (
+	formData: FormData,
+	traits: object
+): {
+	flowBody?: SubmitSelfServiceSettingsFlowBody;
+	error?: Error;
+} => {
+	const method = formData.get('method') ?? undefined;
+	if (typeof method !== 'string') {
+		return {
+			error: new Error('No method attribute in post body')
+		};
+	}
+	
+	if (method === 'oidc') {
+		
+		const link = formData.get('link') ?? undefined;
+		const unlink = formData.get('unlink') ?? undefined;
+		if (typeof provider === 'string' && typeof csrf_token === 'string') {
+			const flowBody: SubmitSelfServiceSettingsFlowWithOidcMethodBody = {
+				provider,
+				method,
+				traits
+			};
+			return { flowBody };
+		}
+		return {
+			error: new Error('Incorrect form data')
+		};
+	} else if (method === 'password') {
+		const identifier = formData.get('identifier') ?? undefined;
+		const password = formData.get('password') ?? undefined;
+		const csrf_token = formData.get('csrf_token') ?? undefined;
+		if (
+			typeof identifier === 'string' &&
+			typeof password === 'string' &&
+			typeof csrf_token === 'string'
+		) {
+			const flowBody: SubmitSelfServiceLoginFlowWithPasswordMethodBody = {
+				csrf_token,
+				identifier,
+				password,
+				method
+			};
+			return { flowBody };
+		}
+		return {
+			error: new Error('Incorrect form data')
+		};
+	}
+	return {
+		error: new Error('Login method not supported')
+	};
+};
+
+export const postFlow = async (
+	flowType: FlowType,
+	flowId: string,
+	cookie: string,
+	formData: FormData
+): Promise<RequestHandlerOutput> => {
+	try {
+		switch (flowType) {
+			case 'login': {
+				const { flowBody, error } = getSubmitSelfServiceLoginFlowBody(formData);
+				if (error) {
+					return {
+						status: 400,
+						body: JSON.stringify(error),
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					}
+				} else if (!flowBody) {
+					const error = new Error('No post body');
+					return {
+						status: 400,
+						body: JSON.stringify(error),
+						headers: {
+							'Content-Type': 'application/json'
+						}
+					}
+				}
+				const { status, data } = await auth.submitSelfServiceLoginFlow(
+					flowId,
+					flowBody,
+					undefined,
+					cookie
+				);
+				return {
+					body: JSON.stringify(data),
+					status,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				};
+			}
+			case 'recovery': {
+				const { flowBody, error } = getSubmitSelfServiceRecoveryFlowBody(formData);
+				if (error) {
+					return {
+						status: 400,
+						body: JSON.stringify(error)
+					}
+				} else if (!flowBody) {
+					const error = new Error('No post body');
+					return {
+						status: 400,
+						body: JSON.stringify(error)
+					}
+				}
+				const { status, data } = await auth.submitSelfServiceRecoveryFlow(
+					flowId,
+					flowBody,
+					undefined,
+					cookie
+				);
+				return {
+					body: JSON.stringify(data),
+					status,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				};
+			}
+			case 'registration': {
+				// TODO: Have to put traits object as input otherwise will fail
+				const { flowBody, error } = getSubmitSelfServiceRegistrationFlowBody(formData, {});
+				if (error) {
+					return {
+						status: 400,
+						body: JSON.stringify(error)
+					}
+				} else if (!flowBody) {
+					const error = new Error('No post body');
+					return {
+						status: 400,
+						body: JSON.stringify(error)
+					}
+				}
+				const { status, data } = await auth.submitSelfServiceRegistrationFlow(
+					flowId,
+					flowBody,
+					cookie
+				);
+				return {
+					body: JSON.stringify(data),
+					status,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				};
+			}
+			case 'settings': {
+				const { flowBody, error } = getSubmitSelfServiceRegistrationFlowBody(formData, {});
+				if (error) {
+					return {
+						status: 400,
+						body: JSON.stringify(error)
+					}
+				} else if (!flowBody) {
+					const error = new Error('No post body');
+					return {
+						status: 400,
+						body: JSON.stringify(error)
+					}
+				}
+				const { status, data } = await auth.submitSelfServiceSettingsFlow(
+					flowId,
+					flowBody,
+					undefined,
+					cookie
+				);
+				return {
+					body: JSON.stringify(data),
+					status,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				};
+			}
+			default: {
+				const error = 'Flow type does not exist';
+				return {
+					body: JSON.stringify(error),
+					status: 400,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				};
+			}
+		}
+	} catch (error) {
+		return {
+			body: JSON.stringify(error),
+			status: 500,
 			headers: {
 				'Content-Type': 'application/json'
 			}

@@ -53,6 +53,8 @@
     import { isUiNodeInputAttributes } from "$lib/utils/ui";
     import InputEmail from "$lib/components/auth/input-email.svelte";
     import InputPassword from "$lib/components/auth/input-password.svelte";
+	import ButtonSubmit from "$lib/components/auth/button-submit.svelte";
+
 
 	export let ui: UiContainer;
 	export let refresh: boolean;
@@ -83,7 +85,9 @@
                         <input
                             name={attributes.name}
                             type="hidden"
-                            value={attributes.value} 
+                            value={attributes.value}
+							required={attributes.required}
+							disabled={attributes.disabled}
                         />
                     {/if}
                     {#if attributes.type === "text" }
@@ -91,6 +95,9 @@
                     {/if}
                     {#if attributes.type === "password" }
                         <InputPassword {attributes} {messages} />
+                    {/if}
+					{#if attributes.type === "submit" }
+                        <ButtonSubmit label="Sign In" {attributes} {messages} />
                     {/if}
                 {/if}
 			{/each}
@@ -110,7 +117,7 @@
         justify-content: center;
         flex-direction: column;
         background-color: var(--pure-white);
-        padding: 3rem 2rem;
+        padding: 3rem 3rem;
         box-shadow: 0 4px 4px -4px var(--shadow-color);
     }
 
@@ -123,7 +130,7 @@
         display: flex;
         justify-content: flex-start;
         flex-direction: column;
-        
+        row-gap: 1.5rem;
     }
 
 </style>
