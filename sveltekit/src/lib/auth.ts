@@ -1,11 +1,7 @@
 import type { RequestHandlerOutput } from '@sveltejs/kit';
 import {
 	Configuration,
-	V0alpha2Api,
-	type SubmitSelfServiceRecoveryFlowWithLinkMethodBody,
-	type SubmitSelfServiceRegistrationFlowWithOidcMethodBody,
-	type SubmitSelfServiceSettingsFlowBody,
-	type SubmitSelfServiceSettingsFlowWithOidcMethodBody
+	V0alpha2Api
 } from '@ory/kratos-client';
 import type {
 	SubmitSelfServiceLoginFlowWithOidcMethodBody,
@@ -13,7 +9,15 @@ import type {
 	SubmitSelfServiceLoginFlowBody,
 	SubmitSelfServiceRecoveryFlowBody,
 	SubmitSelfServiceRegistrationFlowBody,
-	SubmitSelfServiceRegistrationFlowWithPasswordMethodBody
+	SubmitSelfServiceRegistrationFlowWithPasswordMethodBody,
+	SubmitSelfServiceRecoveryFlowWithLinkMethodBody,
+	SubmitSelfServiceRegistrationFlowWithOidcMethodBody,
+	SubmitSelfServiceSettingsFlowBody,
+	SubmitSelfServiceSettingsFlowWithOidcMethodBody,
+	SubmitSelfServiceSettingsFlowWithPasswordMethodBody,
+	SubmitSelfServiceSettingsFlowWithProfileMethodBody,
+	SubmitSelfServiceVerificationFlowBody,
+	SubmitSelfServiceVerificationFlowWithLinkMethodBody
 } from '@ory/kratos-client';
 import config from '$lib/config';
 
@@ -446,7 +450,8 @@ export const getSubmitSelfServiceRegistrationFlowBody = (
 
 export const getSubmitSelfServiceSettingsFlowBody = (
 	formData: FormData,
-	traits: object
+	traits: object,
+	flow?: string,
 ): {
 	flowBody?: SubmitSelfServiceSettingsFlowBody;
 	error?: Error;
@@ -459,12 +464,22 @@ export const getSubmitSelfServiceSettingsFlowBody = (
 	}
 	
 	if (method === 'oidc') {
-		
 		const link = formData.get('link') ?? undefined;
 		const unlink = formData.get('unlink') ?? undefined;
-		if (typeof provider === 'string' && typeof csrf_token === 'string') {
+		if (typeof link === 'string') {
+			if (typeof unlink === 'string') {
+				const flowBody: SubmitSelfServiceSettingsFlowWithOidcMethodBody = {
+					flow,
+					link,
+					method,
+					unlink,
+					traits
+				};
+				return { flowBody }
+			} 
 			const flowBody: SubmitSelfServiceSettingsFlowWithOidcMethodBody = {
-				provider,
+				flow,
+				link,
 				method,
 				traits
 			};
@@ -474,17 +489,14 @@ export const getSubmitSelfServiceSettingsFlowBody = (
 			error: new Error('Incorrect form data')
 		};
 	} else if (method === 'password') {
-		const identifier = formData.get('identifier') ?? undefined;
 		const password = formData.get('password') ?? undefined;
 		const csrf_token = formData.get('csrf_token') ?? undefined;
 		if (
-			typeof identifier === 'string' &&
 			typeof password === 'string' &&
 			typeof csrf_token === 'string'
 		) {
-			const flowBody: SubmitSelfServiceLoginFlowWithPasswordMethodBody = {
+			const flowBody: SubmitSelfServiceSettingsFlowWithPasswordMethodBody = {
 				csrf_token,
-				identifier,
 				password,
 				method
 			};
@@ -493,9 +505,48 @@ export const getSubmitSelfServiceSettingsFlowBody = (
 		return {
 			error: new Error('Incorrect form data')
 		};
+	} else if (method === 'profile') {
+		const csrf_token = formData.get('csrf_token') ?? undefined;
+		if (typeof csrf_token === 'string') {
+			const flowBody: SubmitSelfServiceSettingsFlowWithProfileMethodBody = {
+				csrf_token,
+				method,
+				traits
+			};
+			return { flowBody }
+		}	
+		return {
+			error: new Error('Incorrect form data')
+		};
 	}
 	return {
-		error: new Error('Login method not supported')
+		error: new Error('Settings method not supported')
+	};
+};
+
+export const getSubmitSelfServiceVerificationFlowBody = (
+	formData: FormData
+): { flowBody?: SubmitSelfServiceVerificationFlowBody; error?: Error } => {
+	const method = formData.get('method') ?? undefined;
+	if (typeof method !== 'string') {
+		return {
+			error: new Error('No method attribute in post body')
+		};
+	}
+	if (method === 'link') {
+		const email = formData.get('email') ?? undefined;
+		const csrf_token = formData.get('csrf_token') ?? undefined;
+		if (typeof email === 'string' && typeof csrf_token === 'string') {
+			const flowBody: SubmitSelfServiceVerificationFlowWithLinkMethodBody = {
+				csrf_token,
+				email,
+				method
+			};
+			return { flowBody };
+		}
+	}
+	return {
+		error: new Error('Verification method not supported')
 	};
 };
 
@@ -527,12 +578,18 @@ export const postFlow = async (
 						}
 					}
 				}
-				const { status, data } = await auth.submitSelfServiceLoginFlow(
+				const { status, data, headers } = await auth.submitSelfServiceLoginFlow(
 					flowId,
 					flowBody,
 					undefined,
 					cookie
 				);
+				console.log('Submit Self Service Login Flow Headers');
+				console.log(headers);
+				console.log('Submit Self Service Login Flow Data');
+				console.log(data);
+				console.log('Submit Self Serivce Login Flow Status');
+				console.log(status);
 				return {
 					body: JSON.stringify(data),
 					status,
@@ -598,7 +655,7 @@ export const postFlow = async (
 				};
 			}
 			case 'settings': {
-				const { flowBody, error } = getSubmitSelfServiceRegistrationFlowBody(formData, {});
+				const { flowBody, error } = getSubmitSelfServiceSettingsFlowBody(formData, {}, flowId);
 				if (error) {
 					return {
 						status: 400,
@@ -624,6 +681,35 @@ export const postFlow = async (
 						'Content-Type': 'application/json'
 					}
 				};
+			}
+			case 'verification': {
+				const { flowBody, error } = getSubmitSelfServiceVerificationFlowBody(formData);
+				if (error) {
+					return {
+						status: 400,
+						body: JSON.stringify(error)
+					}
+				} else if (!flowBody) {
+					const error = new Error('No post body');
+					return {
+						status: 400,
+						body: JSON.stringify(error)
+					}
+				}
+				const { status, data } = await auth.submitSelfServiceVerificationFlow(
+					flowId,
+					flowBody,
+					undefined,
+					cookie
+				);
+				return {
+					body: JSON.stringify(data),
+					status,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				};
+
 			}
 			default: {
 				const error = 'Flow type does not exist';
