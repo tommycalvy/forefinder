@@ -125,6 +125,10 @@ export const initFlow = async ({
 					aal,
 					returnTo
 				);
+				console.log('csrf from init flow body');
+				console.log(data.ui.nodes[0].attributes);
+				console.log('csrf from set-cookie');
+				console.log(headers['set-cookie']);
 				if (status === 200) {
 					return {
 						status,
@@ -557,9 +561,14 @@ export const postFlow = async (
 	formData: FormData
 ): Promise<RequestHandlerOutput> => {
 	try {
+		cookie = decodeURIComponent(cookie);
 		switch (flowType) {
 			case 'login': {
 				const { flowBody, error } = getSubmitSelfServiceLoginFlowBody(formData);
+				//console.log('csrf_token in body');
+				//console.log(flowBody?.csrf_token);
+				//console.log('csrf_token in cookie');
+				//console.log(cookie);
 				if (error) {
 					return {
 						status: 400,

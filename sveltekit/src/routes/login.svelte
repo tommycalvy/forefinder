@@ -31,17 +31,17 @@
 		}
 
 		const { id, ui, refresh, requested_aal } = await res.json();
-
+		
 		if (!flowId) {
 			const url = returnTo ? `/login?flow=${id}&return_to=${returnTo}` : `/login?flow=${id}`;
 			return {
-				status: 302,
+				status: 303,
 				redirect: url
 			};
 		}
-
+		
 		return {
-			props: { ui, refresh, requested_aal }
+			props: { id, ui, refresh, requested_aal }
 		};
 	};
 </script>
@@ -58,6 +58,7 @@
 	import InputPassword from '$lib/components/auth/input-password.svelte';
 	import ButtonSubmit from '$lib/components/auth/button-submit.svelte';
 
+	export let id: string;
 	export let ui: UiContainer;
 	export let refresh: boolean;
 	export let requested_aal: AuthenticatorAssuranceLevel;
@@ -70,11 +71,24 @@
 		return acc;
 	}, {});
 
-	const handleSubmit = (event: SubmitEvent) => {
-		const formData = new FormData(event.);
-
-		console.log(data);
-	};
+	ui.action = `/auth/login?flow=${id}`;
+	const handleSubmit = async () => {
+		const formData = new FormData();
+		
+		for (const name in fields) {
+			formData.append(name, fields[name]);
+		}
+		console.log(formData.get('csrf_token'));
+		const res = await fetch(`/auth/login`, {
+			method: ui.method,
+			body: formData,
+			headers: {
+				flow_id: id,
+				accept: 'application/json'
+			}
+		});
+		console.log(res);
+	}
 </script>
 
 <div class="auth-container">
@@ -100,21 +114,20 @@
 			{/if}
 			{#each ui.nodes as { attributes, messages }}
 				{#if isUiNodeInputAttributes(attributes)}
-					{#if attributes.type === 'hidden'}
+					{#if attributes.name === 'csrf_token'}
 						<input
 							name={attributes.name}
 							type="hidden"
-							value={attributes.value}
+							bind:value={fields[attributes.name]}
 							required={attributes.required}
 							disabled={attributes.disabled}
-							bind:value={fields[attributes.name]}
 						/>
 					{/if}
-					{#if attributes.type === 'text'}
-						<InputEmail {attributes} {messages} />
+					{#if attributes.name === 'identifier'}
+						<InputEmail {attributes} {messages} bind:value={fields[attributes.name]}/>
 					{/if}
-					{#if attributes.type === 'password'}
-						<InputPassword {attributes} {messages} />
+					{#if attributes.name === 'password'}
+						<InputPassword {attributes} {messages} bind:value={fields[attributes.name]}/>
 					{/if}
 					{#if attributes.type === 'submit'}
 						<ButtonSubmit label="Sign In" {attributes} {messages} />

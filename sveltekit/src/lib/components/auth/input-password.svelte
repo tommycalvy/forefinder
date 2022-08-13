@@ -4,18 +4,20 @@
 
     export let attributes: UiNodeInputAttributes;
     export let messages: Array<UiText> | undefined;
-
+    export let value: string;
 </script>
 
 
 <fieldset>
     <div>
         <FormTextInput 
+            id="password"
             type="password"
             name={attributes.name}
             required={attributes.required}
             label="Password"
             disabled={attributes.disabled}
+            bind:value
         />
     </div>
     {#if messages}

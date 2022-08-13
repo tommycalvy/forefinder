@@ -4,15 +4,17 @@
 
     export let attributes: UiNodeInputAttributes;
     export let messages: Array<UiText> | undefined;
+    export let value: string;
 
 </script>
 
 <fieldset>
     <FormTextInput 
+        id="email"
         type="email"
         name={attributes.name}
         required={attributes.required}
-        value={attributes.value}
+        bind:value
         label="Email Address"
         disabled={attributes.disabled}
     />

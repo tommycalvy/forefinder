@@ -69,6 +69,7 @@ export const post: RequestHandler = async (event: RequestEvent): Promise<Request
 		}
 
 		const formData = await event.request.formData();
+        console.log(formData.get('identifier'));
 
 		const flowId = event.request.headers.get('flow_id') ?? undefined;
 		const cookie = event.request.headers.get('cookie') ?? undefined;
