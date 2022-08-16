@@ -1,8 +1,5 @@
 import type { RequestHandlerOutput } from '@sveltejs/kit';
-import {
-	Configuration,
-	V0alpha2Api
-} from '@ory/kratos-client';
+import { Configuration, V0alpha2Api } from '@ory/kratos-client';
 import type {
 	SubmitSelfServiceLoginFlowWithOidcMethodBody,
 	SubmitSelfServiceLoginFlowWithPasswordMethodBody,
@@ -17,9 +14,11 @@ import type {
 	SubmitSelfServiceSettingsFlowWithPasswordMethodBody,
 	SubmitSelfServiceSettingsFlowWithProfileMethodBody,
 	SubmitSelfServiceVerificationFlowBody,
-	SubmitSelfServiceVerificationFlowWithLinkMethodBody
+	SubmitSelfServiceVerificationFlowWithLinkMethodBody,
+	GenericError
 } from '@ory/kratos-client';
 import config from '$lib/config';
+import axios from 'axios';
 
 export const auth = new V0alpha2Api(
 	new Configuration({
@@ -125,10 +124,10 @@ export const initFlow = async ({
 					aal,
 					returnTo
 				);
-				console.log('csrf from init flow body');
-				console.log(data.ui.nodes[0].attributes);
-				console.log('csrf from set-cookie');
-				console.log(headers['set-cookie']);
+				//console.log('csrf from init flow body');
+				//console.log(data.ui.nodes[0].attributes);
+				//console.log('csrf from set-cookie');
+				//console.log(headers['set-cookie']);
 				if (status === 200) {
 					return {
 						status,
@@ -257,6 +256,7 @@ export const getFlow = async (
 	cookie: string
 ): Promise<RequestHandlerOutput> => {
 	try {
+		cookie = decodeURIComponent(cookie);
 		switch (flowType) {
 			case 'login': {
 				const { status, data } = await auth.getSelfServiceLoginFlow(flowId, cookie);
@@ -319,9 +319,39 @@ export const getFlow = async (
 				};
 			}
 		}
-	} catch (error) {
+	} catch (err) {
+		if (axios.isAxiosError(err)) {
+			console.log('in catch of getFlow');
+			console.log(err);
+			if (err.response?.status === 400) {
+				return {
+					body: JSON.stringify(err.response?.data),
+					status: err.response?.status,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				};
+			} else if (err.response?.status === 403) {
+				return {
+					body: JSON.stringify(err.response?.data),
+					status: err.response?.status,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				}
+			} else if (err.response?.status === 410) {
+				if (isSelfServiceFlowExpiredError(err.response.data)) {
+					return {
+						status: 410,
+						headers: {
+							'Location': `/${flowType}?flow=${err.response.data.use_flow_id}`
+						}
+					}
+				}	
+			}
+		}
 		return {
-			body: JSON.stringify(error),
+			body: JSON.stringify(err),
 			status: 500,
 			headers: {
 				'Content-Type': 'application/json'
@@ -455,7 +485,7 @@ export const getSubmitSelfServiceRegistrationFlowBody = (
 export const getSubmitSelfServiceSettingsFlowBody = (
 	formData: FormData,
 	traits: object,
-	flow?: string,
+	flow?: string
 ): {
 	flowBody?: SubmitSelfServiceSettingsFlowBody;
 	error?: Error;
@@ -466,7 +496,7 @@ export const getSubmitSelfServiceSettingsFlowBody = (
 			error: new Error('No method attribute in post body')
 		};
 	}
-	
+
 	if (method === 'oidc') {
 		const link = formData.get('link') ?? undefined;
 		const unlink = formData.get('unlink') ?? undefined;
@@ -479,8 +509,8 @@ export const getSubmitSelfServiceSettingsFlowBody = (
 					unlink,
 					traits
 				};
-				return { flowBody }
-			} 
+				return { flowBody };
+			}
 			const flowBody: SubmitSelfServiceSettingsFlowWithOidcMethodBody = {
 				flow,
 				link,
@@ -495,10 +525,7 @@ export const getSubmitSelfServiceSettingsFlowBody = (
 	} else if (method === 'password') {
 		const password = formData.get('password') ?? undefined;
 		const csrf_token = formData.get('csrf_token') ?? undefined;
-		if (
-			typeof password === 'string' &&
-			typeof csrf_token === 'string'
-		) {
+		if (typeof password === 'string' && typeof csrf_token === 'string') {
 			const flowBody: SubmitSelfServiceSettingsFlowWithPasswordMethodBody = {
 				csrf_token,
 				password,
@@ -517,8 +544,8 @@ export const getSubmitSelfServiceSettingsFlowBody = (
 				method,
 				traits
 			};
-			return { flowBody }
-		}	
+			return { flowBody };
+		}
 		return {
 			error: new Error('Incorrect form data')
 		};
@@ -554,6 +581,18 @@ export const getSubmitSelfServiceVerificationFlowBody = (
 	};
 };
 
+interface SelfServiceFlowExpiredError {
+	error: GenericError;
+	since: number;
+	use_flow_id: string;
+}
+
+const isSelfServiceFlowExpiredError = (obj: unknown): obj is SelfServiceFlowExpiredError => {
+	return (
+		typeof obj === 'object' && obj !== null && 'error' in obj && 'since' in obj && 'use_flow_id' in obj
+	);
+}
+
 export const postFlow = async (
 	flowType: FlowType,
 	flowId: string,
@@ -570,13 +609,14 @@ export const postFlow = async (
 				//console.log('csrf_token in cookie');
 				//console.log(cookie);
 				if (error) {
+					console.log('Error creating Submit Login Flow Body');
 					return {
 						status: 400,
 						body: JSON.stringify(error),
 						headers: {
 							'Content-Type': 'application/json'
 						}
-					}
+					};
 				} else if (!flowBody) {
 					const error = new Error('No post body');
 					return {
@@ -585,7 +625,7 @@ export const postFlow = async (
 						headers: {
 							'Content-Type': 'application/json'
 						}
-					}
+					};
 				}
 				const { status, data, headers } = await auth.submitSelfServiceLoginFlow(
 					flowId,
@@ -593,6 +633,7 @@ export const postFlow = async (
 					undefined,
 					cookie
 				);
+
 				console.log('Submit Self Service Login Flow Headers');
 				console.log(headers);
 				console.log('Submit Self Service Login Flow Data');
@@ -613,20 +654,26 @@ export const postFlow = async (
 					return {
 						status: 400,
 						body: JSON.stringify(error)
-					}
+					};
 				} else if (!flowBody) {
 					const error = new Error('No post body');
 					return {
 						status: 400,
 						body: JSON.stringify(error)
-					}
+					};
 				}
-				const { status, data } = await auth.submitSelfServiceRecoveryFlow(
-					flowId,
-					flowBody,
-					undefined,
-					cookie
-				);
+
+				const { status, data } = await auth
+					.submitSelfServiceRecoveryFlow(flowId, flowBody, undefined, cookie)
+					.catch((error) => {
+						if (error.repsonse.status === 400) {
+							return error.response;
+						}
+						return {
+							status: error.response.status,
+							data: error.response.data
+						};
+					});
 				return {
 					body: JSON.stringify(data),
 					status,
@@ -642,13 +689,13 @@ export const postFlow = async (
 					return {
 						status: 400,
 						body: JSON.stringify(error)
-					}
+					};
 				} else if (!flowBody) {
 					const error = new Error('No post body');
 					return {
 						status: 400,
 						body: JSON.stringify(error)
-					}
+					};
 				}
 				const { status, data } = await auth.submitSelfServiceRegistrationFlow(
 					flowId,
@@ -669,13 +716,13 @@ export const postFlow = async (
 					return {
 						status: 400,
 						body: JSON.stringify(error)
-					}
+					};
 				} else if (!flowBody) {
 					const error = new Error('No post body');
 					return {
 						status: 400,
 						body: JSON.stringify(error)
-					}
+					};
 				}
 				const { status, data } = await auth.submitSelfServiceSettingsFlow(
 					flowId,
@@ -697,13 +744,13 @@ export const postFlow = async (
 					return {
 						status: 400,
 						body: JSON.stringify(error)
-					}
+					};
 				} else if (!flowBody) {
 					const error = new Error('No post body');
 					return {
 						status: 400,
 						body: JSON.stringify(error)
-					}
+					};
 				}
 				const { status, data } = await auth.submitSelfServiceVerificationFlow(
 					flowId,
@@ -718,7 +765,6 @@ export const postFlow = async (
 						'Content-Type': 'application/json'
 					}
 				};
-
 			}
 			default: {
 				const error = 'Flow type does not exist';
@@ -731,9 +777,30 @@ export const postFlow = async (
 				};
 			}
 		}
-	} catch (error) {
+	} catch (err) {
+		if (axios.isAxiosError(err)) {
+			if (err.response?.status === 400) {
+				return {
+					body: JSON.stringify(err.response?.data),
+					status: err.response?.status,
+					headers: {
+						'Content-Type': 'application/json'
+					}
+				};
+			} else if (err.response?.status === 410) {
+				if (isSelfServiceFlowExpiredError(err.response.data)) {
+					return {
+						status: 410,
+						headers: {
+							'Location': `/${flowType}?flow=${err.response.data.use_flow_id}`
+						}
+					}
+				}	
+			}
+		}
+
 		return {
-			body: JSON.stringify(error),
+			body: JSON.stringify(err),
 			status: 500,
 			headers: {
 				'Content-Type': 'application/json'

@@ -19,14 +19,14 @@
 				? new Headers({ flow_id: flowId })
 				: undefined;
 
-		const res = await fetch('/auth/login', {
+		const res = await fetch('/auth/registration', {
 			headers: headersInit
 		});
 
 		if (!res.ok) {
 			return {
 				status: 302,
-				redirect: '/login'
+				redirect: '/registration'
 			};
 		}
 
@@ -34,7 +34,7 @@
 		
 		
 		if (!flowId) {
-			const url = returnTo ? `/login?flow=${id}&return_to=${returnTo}` : `/login?flow=${id}`;
+			const url = returnTo ? `/registration?flow=${id}&return_to=${returnTo}` : `/registration?flow=${id}`;
 			return {
 				status: 303,
 				redirect: url
@@ -74,7 +74,7 @@
 		return acc;
 	}, {});
 
-	ui.action = `/auth/login?flow=${id}`;
+	ui.action = `/auth/registration?flow=${id}`;
 	const handleSubmit = async () => {
 		const formData = new FormData();
 		
@@ -82,7 +82,7 @@
 			formData.append(name, fields[name]);
 		}
 		console.log(formData.get('csrf_token'));
-		const res = await fetch(`/auth/login`, {
+		const res = await fetch(`/auth/registration`, {
 			method: ui.method,
 			body: formData,
 			headers: {
@@ -97,7 +97,7 @@
 				if (newFlow) {
 					await goto(newFlow);
 				} else {
-					await goto('/login');
+					await goto('/registration');
 				}
 				break;
 			}
@@ -128,7 +128,7 @@
 		{:else if requested_aal === 'aal2'}
 			<h2>Two-Factor Authentication</h2>
 		{:else}
-			<h2>Sign in to forefinder</h2>
+			<h2>Create your forefinder account</h2>
 		{/if}
 
 		<form
@@ -151,14 +151,14 @@
 							disabled={attributes.disabled}
 						/>
 					{/if}
-					{#if attributes.name === 'identifier'}
+					{#if attributes.name === 'traits.email'}
 						<InputEmail {attributes} {messages} bind:value={fields[attributes.name]}/>
 					{/if}
 					{#if attributes.name === 'password'}
 						<InputPassword {attributes} {messages} bind:value={fields[attributes.name]}/>
 					{/if}
 					{#if attributes.type === 'submit'}
-						<ButtonSubmit label="Sign In" {attributes} {messages} />
+						<ButtonSubmit label="Sign Up" {attributes} {messages} />
 					{/if}
 				{/if}
 			{/each}

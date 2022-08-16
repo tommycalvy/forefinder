@@ -37,7 +37,7 @@ export const get: RequestHandler = async (event: RequestEvent): Promise<RequestH
 		const cookie = event.request.headers.get('cookie') ?? undefined;
 
 		if (flowId && cookie) {
-			console.log('get flow');
+			console.log('getting flow');
 			return getFlow(flowType, flowId, cookie);
 		}
 
@@ -46,7 +46,7 @@ export const get: RequestHandler = async (event: RequestEvent): Promise<RequestH
 		const aal = event.request.headers.get('aal') ?? undefined;
 		const returnTo = event.request.headers.get('return_to') ?? undefined;
 
-		console.log('init flow');
+		console.log('initializing flow');
 		return initFlow({ flowType, refresh, aal, returnTo });
 	} catch (error) {
 		console.log(error);
