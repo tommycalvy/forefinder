@@ -3,7 +3,10 @@ import { auth } from '$lib/auth';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	try {
-		const cookies = event.request.headers.get('cookie') ?? undefined;
+		let cookies = event.request.headers.get('cookie') ?? undefined;
+		if (cookies) {
+			cookies = decodeURIComponent(cookies);
+		}
 		const { status, data } = await auth.toSession(undefined, cookies, {
 			withCredentials: true
 		});
@@ -15,12 +18,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 		const response = await resolve(event);
 
-		return {
-			...response,
-			headers: {
-				...response.headers
-			}
-		};
+		return response;
 	} catch (error) {
 		return await resolve(event);
 	}
@@ -32,6 +30,7 @@ export const getSession: GetSession = (event) => {
 		user: event.locals.session && {
 			id: event.locals.session.identity.id,
 			email: event.locals.session?.identity?.traits?.email,
+			name: event.locals.session?.identity?.traits?.name?.first,
 			verified: event.locals.session?.identity?.verifiable_addresses?.[0]?.verified ?? false
 		}
 	};

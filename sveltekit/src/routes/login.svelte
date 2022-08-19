@@ -91,6 +91,10 @@
 			}
 		});
 		switch (res.status) {
+			case 200: {
+				await goto('/');
+				break;
+			}
 			case 410: {
 				const newFlow = res.headers.get('location') ?? undefined;
 				console.log(newFlow);

@@ -32,6 +32,7 @@ export const auth = new V0alpha2Api(
 export interface User {
 	id: string;
 	email: string;
+	name: string;
 	verified: boolean;
 }
 
@@ -41,10 +42,11 @@ export type FlowType =
 	| 'settings'
 	| 'verification'
 	| 'recovery'
-	| 'error';
+	| 'error'
+	| 'logout';
 
 export const isFlowType = (flow: string): flow is FlowType => {
-	return ['registration', 'login', 'settings', 'verification', 'recovery', 'error'].includes(flow);
+	return ['registration', 'login', 'settings', 'verification', 'recovery', 'error', 'logout'].includes(flow);
 };
 
 const handleInitFlowError = (error: string): RequestHandlerOutput => {
@@ -239,6 +241,58 @@ export const initFlow = async ({
 	}
 };
 
+export const createLogoutUrl = async (cookie: string): Promise<RequestHandlerOutput> => {
+	const { status, data, headers } = await auth.createSelfServiceLogoutFlowUrlForBrowsers(cookie);
+	console.log('createLogoutUrl status');
+	console.log(status);
+	console.log('createLogoutUrl data');
+	console.log(data);
+	console.log('createLogoutUrl headers');
+	console.log(headers);
+	return {
+		body: JSON.stringify(data),
+		status,
+		headers: {
+			'Content-Type': 'application/json'
+		}
+	}
+}
+
+export const submitLogoutFlow = async (token: string, returnTo?: string): Promise<RequestHandlerOutput> => {
+	try {
+		const { status, data, headers } = await auth.submitSelfServiceLogoutFlow(token, returnTo);
+		console.log('submitLogoutFlow status');
+		console.log(status);
+		console.log('submitLogoutFlow data');
+		console.log(data);
+		console.log('submitLogoutFlow headers');
+		console.log(headers);
+		return {
+			body: JSON.stringify(data),
+			status,
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		}
+	} catch (err) {
+		console.log(err);
+		if (axios.isAxiosError(err)) {
+			console.log(err.response?.data);
+			return {
+				body: JSON.stringify(err.response?.data),
+				status: err.response?.status,
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			};
+		}
+		return {
+			status: 500
+		}
+	}
+	
+}
+
 export const getFlowError = async (error: string): Promise<RequestHandlerOutput> => {
 	const { status, data } = await auth.getSelfServiceError(error);
 	return {
@@ -338,16 +392,16 @@ export const getFlow = async (
 					headers: {
 						'Content-Type': 'application/json'
 					}
-				}
+				};
 			} else if (err.response?.status === 410) {
 				if (isSelfServiceFlowExpiredError(err.response.data)) {
 					return {
 						status: 410,
 						headers: {
-							'Location': `/${flowType}?flow=${err.response.data.use_flow_id}`
+							Location: `/${flowType}?flow=${err.response.data.use_flow_id}`
 						}
-					}
-				}	
+					};
+				}
 			}
 		}
 		return {
@@ -438,8 +492,7 @@ export const getSubmitSelfServiceRecoveryFlowBody = (
 };
 
 export const getSubmitSelfServiceRegistrationFlowBody = (
-	formData: FormData,
-	traits: object
+	formData: FormData
 ): { flowBody?: SubmitSelfServiceRegistrationFlowBody; error?: Error } => {
 	const method = formData.get('method') ?? undefined;
 	if (typeof method !== 'string') {
@@ -455,7 +508,12 @@ export const getSubmitSelfServiceRegistrationFlowBody = (
 				csrf_token,
 				provider,
 				method,
-				traits
+				traits: {
+					email: formData.get('traits.email') ?? undefined,
+					name: {
+						first: formData.get('traits.name.first') ?? undefined
+					}
+				}
 			};
 			return { flowBody };
 		}
@@ -469,7 +527,12 @@ export const getSubmitSelfServiceRegistrationFlowBody = (
 				csrf_token,
 				password,
 				method,
-				traits
+				traits: {
+					email: formData.get('traits.email'),
+					name: {
+						first: formData.get('traits.name.first')
+					}
+				}
 			};
 			return { flowBody };
 		}
@@ -484,7 +547,6 @@ export const getSubmitSelfServiceRegistrationFlowBody = (
 
 export const getSubmitSelfServiceSettingsFlowBody = (
 	formData: FormData,
-	traits: object,
 	flow?: string
 ): {
 	flowBody?: SubmitSelfServiceSettingsFlowBody;
@@ -507,7 +569,12 @@ export const getSubmitSelfServiceSettingsFlowBody = (
 					link,
 					method,
 					unlink,
-					traits
+					traits: {
+						email: formData.get('traits.email') ?? undefined,
+						name: {
+							first: formData.get('traits.name.first') ?? undefined
+						}
+					}
 				};
 				return { flowBody };
 			}
@@ -515,7 +582,12 @@ export const getSubmitSelfServiceSettingsFlowBody = (
 				flow,
 				link,
 				method,
-				traits
+				traits: {
+					email: formData.get('traits.email') ?? undefined,
+					name: {
+						first: formData.get('traits.name.first') ?? undefined
+					}
+				}
 			};
 			return { flowBody };
 		}
@@ -542,7 +614,12 @@ export const getSubmitSelfServiceSettingsFlowBody = (
 			const flowBody: SubmitSelfServiceSettingsFlowWithProfileMethodBody = {
 				csrf_token,
 				method,
-				traits
+				traits: {
+					email: formData.get('traits.email') ?? undefined,
+					name: {
+						first: formData.get('traits.name.first') ?? undefined
+					}
+				}
 			};
 			return { flowBody };
 		}
@@ -589,9 +666,13 @@ interface SelfServiceFlowExpiredError {
 
 const isSelfServiceFlowExpiredError = (obj: unknown): obj is SelfServiceFlowExpiredError => {
 	return (
-		typeof obj === 'object' && obj !== null && 'error' in obj && 'since' in obj && 'use_flow_id' in obj
+		typeof obj === 'object' &&
+		obj !== null &&
+		'error' in obj &&
+		'since' in obj &&
+		'use_flow_id' in obj
 	);
-}
+};
 
 export const postFlow = async (
 	flowType: FlowType,
@@ -644,7 +725,9 @@ export const postFlow = async (
 					body: JSON.stringify(data),
 					status,
 					headers: {
-						'Content-Type': 'application/json'
+						'cache-control': headers['cache-control'],
+						'content-type': headers['content-type'],
+						'set-cookie': headers['set-cookie']
 					}
 				};
 			}
@@ -663,28 +746,26 @@ export const postFlow = async (
 					};
 				}
 
-				const { status, data } = await auth
-					.submitSelfServiceRecoveryFlow(flowId, flowBody, undefined, cookie)
-					.catch((error) => {
-						if (error.repsonse.status === 400) {
-							return error.response;
-						}
-						return {
-							status: error.response.status,
-							data: error.response.data
-						};
-					});
+				const { status, data, headers } = await auth.submitSelfServiceRecoveryFlow(
+					flowId,
+					flowBody,
+					undefined,
+					cookie
+				);
+
 				return {
 					body: JSON.stringify(data),
 					status,
 					headers: {
-						'Content-Type': 'application/json'
+						'cache-control': headers['cache-control'],
+						'content-type': headers['content-type'],
+						'set-cookie': headers['set-cookie']
 					}
 				};
 			}
 			case 'registration': {
 				// TODO: Have to put traits object as input otherwise will fail
-				const { flowBody, error } = getSubmitSelfServiceRegistrationFlowBody(formData, {});
+				const { flowBody, error } = getSubmitSelfServiceRegistrationFlowBody(formData);
 				if (error) {
 					return {
 						status: 400,
@@ -697,7 +778,7 @@ export const postFlow = async (
 						body: JSON.stringify(error)
 					};
 				}
-				const { status, data } = await auth.submitSelfServiceRegistrationFlow(
+				const { status, data, headers } = await auth.submitSelfServiceRegistrationFlow(
 					flowId,
 					flowBody,
 					cookie
@@ -706,12 +787,14 @@ export const postFlow = async (
 					body: JSON.stringify(data),
 					status,
 					headers: {
-						'Content-Type': 'application/json'
+						'cache-control': headers['cache-control'],
+						'content-type': headers['content-type'],
+						'set-cookie': headers['set-cookie']
 					}
 				};
 			}
 			case 'settings': {
-				const { flowBody, error } = getSubmitSelfServiceSettingsFlowBody(formData, {}, flowId);
+				const { flowBody, error } = getSubmitSelfServiceSettingsFlowBody(formData, flowId);
 				if (error) {
 					return {
 						status: 400,
@@ -724,7 +807,7 @@ export const postFlow = async (
 						body: JSON.stringify(error)
 					};
 				}
-				const { status, data } = await auth.submitSelfServiceSettingsFlow(
+				const { status, data, headers } = await auth.submitSelfServiceSettingsFlow(
 					flowId,
 					flowBody,
 					undefined,
@@ -734,7 +817,9 @@ export const postFlow = async (
 					body: JSON.stringify(data),
 					status,
 					headers: {
-						'Content-Type': 'application/json'
+						'cache-control': headers['cache-control'],
+						'content-type': headers['content-type'],
+						'set-cookie': headers['set-cookie']
 					}
 				};
 			}
@@ -752,7 +837,7 @@ export const postFlow = async (
 						body: JSON.stringify(error)
 					};
 				}
-				const { status, data } = await auth.submitSelfServiceVerificationFlow(
+				const { status, data, headers } = await auth.submitSelfServiceVerificationFlow(
 					flowId,
 					flowBody,
 					undefined,
@@ -762,7 +847,9 @@ export const postFlow = async (
 					body: JSON.stringify(data),
 					status,
 					headers: {
-						'Content-Type': 'application/json'
+						'cache-control': headers['cache-control'],
+						'content-type': headers['content-type'],
+						'set-cookie': headers['set-cookie']
 					}
 				};
 			}
@@ -792,10 +879,10 @@ export const postFlow = async (
 					return {
 						status: 410,
 						headers: {
-							'Location': `/${flowType}?flow=${err.response.data.use_flow_id}`
+							Location: `/${flowType}?flow=${err.response.data.use_flow_id}`
 						}
-					}
-				}	
+					};
+				}
 			}
 		}
 

@@ -13,7 +13,7 @@
 	const nav = [
 		{
 			title: 'Home',
-			path: '/home',
+			path: '/',
 			icon: {
 				filled: HomeFilled,
 				outlined: HomeOutlined

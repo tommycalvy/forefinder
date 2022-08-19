@@ -57,6 +57,7 @@
 	import { isUiNodeInputAttributes } from '$lib/utils/ui';
 	import InputEmail from '$lib/components/auth/input-email.svelte';
 	import InputPassword from '$lib/components/auth/input-password.svelte';
+    import InputText from "$lib/components/auth/input-text.svelte";
 	import ButtonSubmit from '$lib/components/auth/button-submit.svelte';
 	import Messages from "$lib/components/auth/messages.svelte";
 	import { goto } from "$app/navigation";
@@ -81,7 +82,7 @@
 		for (const name in fields) {
 			formData.append(name, fields[name]);
 		}
-		console.log(formData.get('csrf_token'));
+		
 		const res = await fetch(`/auth/registration`, {
 			method: ui.method,
 			body: formData,
@@ -104,7 +105,6 @@
 			case 400: {
 				const data = await res.json();
 				ui = data.ui;
-				console.log(ui.messages);
 				break;
 			}
 			case 500: {
@@ -157,6 +157,9 @@
 					{#if attributes.name === 'password'}
 						<InputPassword {attributes} {messages} bind:value={fields[attributes.name]}/>
 					{/if}
+                    {#if attributes.name === 'traits.name.first'}
+                        <InputText {attributes} {messages} label="Name" bind:value={fields[attributes.name]} />
+                    {/if}
 					{#if attributes.type === 'submit'}
 						<ButtonSubmit label="Sign Up" {attributes} {messages} />
 					{/if}

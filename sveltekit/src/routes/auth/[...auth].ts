@@ -6,6 +6,8 @@ import {
 	initFlow,
 	isFlowType,
     postFlow,
+	createLogoutUrl,
+	submitLogoutFlow
 } from '$lib/auth';
 
 export const get: RequestHandler = async (event: RequestEvent): Promise<RequestHandlerOutput> => {
@@ -45,6 +47,15 @@ export const get: RequestHandler = async (event: RequestEvent): Promise<RequestH
 
 		const aal = event.request.headers.get('aal') ?? undefined;
 		const returnTo = event.request.headers.get('return_to') ?? undefined;
+
+		if (flowType === 'logout' && cookie) {
+			const token = event.request.headers.get('logout_token') ?? undefined;
+			if (token) {
+				return submitLogoutFlow(token, returnTo);
+			}
+			console.log('Creating Logout Url');
+			return createLogoutUrl(cookie);
+		}
 
 		console.log('initializing flow');
 		return initFlow({ flowType, refresh, aal, returnTo });
