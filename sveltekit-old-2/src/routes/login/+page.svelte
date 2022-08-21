@@ -1,59 +1,12 @@
-<script context="module" lang="ts">
-	import type { Load } from '@sveltejs/kit';
-
-	export const load: Load = async ({ session, url, fetch }) => {
-		if (session.user) {
-			return {
-				status: 302,
-				redirect: '/'
-			};
-		}
-
-		const flowId = url.searchParams.get('flow') ?? undefined;
-		const returnTo = url.searchParams.get('return_to') ?? undefined;
-
-		const headersInit =
-			flowId && returnTo
-				? new Headers({ flow_id: flowId, return_to: returnTo })
-				: flowId
-				? new Headers({ flow_id: flowId })
-				: undefined;
-
-		const res = await fetch('/auth/login', {
-			headers: headersInit
-		});
-
-		if (!res.ok) {
-			return {
-				status: 302,
-				redirect: '/login'
-			};
-		}
-
-		const { id, ui, refresh, requested_aal } = await res.json();
-		
-		
-		if (!flowId) {
-			const url = returnTo ? `/login?flow=${id}&return_to=${returnTo}` : `/login?flow=${id}`;
-			return {
-				status: 303,
-				redirect: url
-			};
-		}
-		
-		return {
-			props: { id, ui, refresh, requested_aal }
-		};
-	};
-</script>
-
 <script lang="ts">
+	throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
+
 	import type {
 		UiContainer,
 		UiNodeInputAttributes,
 		AuthenticatorAssuranceLevel
 	} from '@ory/kratos-client';
-	import '../app.css';
+	import '../../app.css';
 	import { isUiNodeInputAttributes } from '$lib/utils/ui';
 	import InputEmail from '$lib/components/auth/input-email.svelte';
 	import InputPassword from '$lib/components/auth/input-password.svelte';

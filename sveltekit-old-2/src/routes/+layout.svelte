@@ -1,17 +1,11 @@
-<script context="module" lang="ts">
-	
-</script>
-
 <script lang="ts">
 	import '../app.css';
 	import Header from '$lib/components/header/Header.svelte';
-	import { session } from "$app/stores";
-
-
+	import { page } from '$app/stores';
 
 </script>
 
-{#if $session.user }
+{#if $page.data }
 	<Header />
 {/if}
 

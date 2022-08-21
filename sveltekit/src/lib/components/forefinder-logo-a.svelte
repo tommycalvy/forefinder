@@ -1,6 +1,6 @@
 
 
-<a sveltekit:prefetch href="/home" title="Home">
+<a sveltekit:prefetch href="/" title="Home">
 	<span class="logo">
 		<h3>forefinder</h3>
 		<div>

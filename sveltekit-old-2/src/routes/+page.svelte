@@ -1,28 +1,6 @@
-<script context="module" lang="ts">
-	import type { Load } from '@sveltejs/kit';
-
-	export const load: Load = async ({ session, url, fetch }) => {
-		if (session.user) {
-			const res = await fetch('/auth/logout');
-			if (res.ok) {
-				const { logout_token } = await res.json();
-				return {
-					props: {
-						logoutToken: logout_token
-					}
-				};
-			}
-		}
-		return {
-			props: {
-				user: session.user,
-				logoutToken: undefined
-			}
-		};
-	};
-</script>
-
 <script lang="ts">
+	throw new Error("@migration task: Add data prop (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3292707)");
+
 	import { session } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import type { User } from "$lib/auth";

@@ -36,5 +36,3 @@ export const isUiNodeScriptAttributes = (
 ): attributes is UiNodeScriptAttributes => {
 	return (attributes as UiNodeScriptAttributes).node_type === 'script';
 };
-
-

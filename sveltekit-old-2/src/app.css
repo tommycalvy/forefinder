@@ -1,0 +1,74 @@
+@import '@fontsource/fira-mono';
+
+
+
+:root {
+	font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+	--font-mono: 'Fira Mono', monospace;
+	--pure-white: #ffffff;
+	--pitch-black: #000000;
+	--primary-color: #b9c6d2;
+	--secondary-color: #d0dde9;
+	--tertiary-color: #edf0f8;
+	--accent-color: #ff3e00;
+	--heading-color: rgba(0, 0, 0, 0.7);
+	--text-color: #444444;
+	--background-without-opacity: rgba(255, 255, 255, 0.7);
+	--column-width: 42rem;
+	--column-margin-top: 4rem;
+	--youtube-primary: #FAF9F9;
+	--forefinder-primary: #F5F2F0;
+	--forefinder-secondary: #98BDD7;
+	--forefinder-green: #99D420;
+	--pine-tree-green: #3E7D46;
+	--pine-tree-green-active: #5F9F6B;
+	--pine-tree-green-hover: #2A5530;
+	--hover-color: #E5E5E5;
+	--active-color: #8E8E8E;
+	--shadow-color: #C6C6C6;
+	--hr-line-color: #717272;
+	--input-label-color: #8A8A8A;
+	--error-card-color: #FFE7D9;
+	--error-message-color: #7A0C2E;
+	--alert-indicator-color: #FFA48D;
+	--top-app-bar-height: 3.6rem;
+}
+
+body {
+	min-height: 100vh;
+	margin: 0;
+	background-color: var(--forefinder-primary);
+}
+
+h1,
+h2,
+p {
+	font-weight: 400;
+	color: var(--heading-color);
+}
+
+p {
+	line-height: 1.5;
+}
+
+h1 {
+	font-size: 2rem;
+	text-align: center;
+}
+
+input,
+button {
+	font-size: inherit;
+	font-family: inherit;
+}
+
+button:focus:not(:focus-visible) {
+	outline: none;
+}
+
+@media (min-width: 720px) {
+	h1 {
+		font-size: 2.4rem;
+	}
+}

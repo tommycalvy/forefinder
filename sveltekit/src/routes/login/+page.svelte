@@ -1,52 +1,3 @@
-<script context="module" lang="ts">
-	import type { Load } from '@sveltejs/kit';
-
-	export const load: Load = async ({ session, url, fetch }) => {
-		if (session.user) {
-			return {
-				status: 302,
-				redirect: '/'
-			};
-		}
-
-		const flowId = url.searchParams.get('flow') ?? undefined;
-		const returnTo = url.searchParams.get('return_to') ?? undefined;
-
-		const headersInit =
-			flowId && returnTo
-				? new Headers({ flow_id: flowId, return_to: returnTo })
-				: flowId
-				? new Headers({ flow_id: flowId })
-				: undefined;
-
-		const res = await fetch('/auth/registration', {
-			headers: headersInit
-		});
-
-		if (!res.ok) {
-			return {
-				status: 302,
-				redirect: '/registration'
-			};
-		}
-
-		const { id, ui, refresh, requested_aal } = await res.json();
-		
-		
-		if (!flowId) {
-			const url = returnTo ? `/registration?flow=${id}&return_to=${returnTo}` : `/registration?flow=${id}`;
-			return {
-				status: 303,
-				redirect: url
-			};
-		}
-		
-		return {
-			props: { id, ui, refresh, requested_aal }
-		};
-	};
-</script>
-
 <script lang="ts">
 	import type {
 		UiContainer,
@@ -57,7 +8,6 @@
 	import { isUiNodeInputAttributes } from '$lib/utils/ui';
 	import InputEmail from '$lib/components/auth/input-email.svelte';
 	import InputPassword from '$lib/components/auth/input-password.svelte';
-    import InputText from "$lib/components/auth/input-text.svelte";
 	import ButtonSubmit from '$lib/components/auth/button-submit.svelte';
 	import Messages from "$lib/components/auth/messages.svelte";
 	import { goto } from "$app/navigation";
@@ -75,15 +25,15 @@
 		return acc;
 	}, {});
 
-	ui.action = `/auth/registration?flow=${id}`;
+	ui.action = `/auth/login?flow=${id}`;
 	const handleSubmit = async () => {
 		const formData = new FormData();
 		
 		for (const name in fields) {
 			formData.append(name, fields[name]);
 		}
-		
-		const res = await fetch(`/auth/registration`, {
+		console.log(formData.get('csrf_token'));
+		const res = await fetch(`/auth/login`, {
 			method: ui.method,
 			body: formData,
 			headers: {
@@ -92,19 +42,24 @@
 			}
 		});
 		switch (res.status) {
+			case 200: {
+				await goto('/');
+				break;
+			}
 			case 410: {
 				const newFlow = res.headers.get('location') ?? undefined;
 				console.log(newFlow);
 				if (newFlow) {
 					await goto(newFlow);
 				} else {
-					await goto('/registration');
+					await goto('/login');
 				}
 				break;
 			}
 			case 400: {
 				const data = await res.json();
 				ui = data.ui;
+				console.log(ui.messages);
 				break;
 			}
 			case 500: {
@@ -128,7 +83,7 @@
 		{:else if requested_aal === 'aal2'}
 			<h2>Two-Factor Authentication</h2>
 		{:else}
-			<h2>Create your forefinder account</h2>
+			<h2>Sign in to forefinder</h2>
 		{/if}
 
 		<form
@@ -151,17 +106,14 @@
 							disabled={attributes.disabled}
 						/>
 					{/if}
-					{#if attributes.name === 'traits.email'}
+					{#if attributes.name === 'identifier'}
 						<InputEmail {attributes} {messages} bind:value={fields[attributes.name]}/>
 					{/if}
 					{#if attributes.name === 'password'}
 						<InputPassword {attributes} {messages} bind:value={fields[attributes.name]}/>
 					{/if}
-                    {#if attributes.name === 'traits.name.first'}
-                        <InputText {attributes} {messages} label="Name" bind:value={fields[attributes.name]} />
-                    {/if}
 					{#if attributes.type === 'submit'}
-						<ButtonSubmit label="Sign Up" {attributes} {messages} />
+						<ButtonSubmit label="Sign In" {attributes} {messages} />
 					{/if}
 				{/if}
 			{/each}
