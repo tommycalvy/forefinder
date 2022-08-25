@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { UiNodeInputAttributes, UiText } from '@ory/kratos-client';
+    import Messages from "./messages.svelte";
 
     export let attributes: UiNodeInputAttributes;
     export let messages: Array<UiText> | undefined;
@@ -9,16 +10,13 @@
 <div>
     <button
         type="submit"
+        formmethod="post"
         name={attributes.name}
         value={attributes.value}
         disabled={attributes.disabled}
     >{label}</button>
     {#if messages}
-        {#each messages as message}
-            <div class="typography-caption">
-                { message }
-            </div>
-        {/each}
+        <Messages {messages} />
     {/if}
 </div>
 

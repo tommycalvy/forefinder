@@ -5,18 +5,17 @@
 	export let value: string = '';
 	export let disabled: boolean | null | undefined = undefined;
 	export let label: string;
-	export let id: string;
 </script>
 
 
 <!-- svelte-ignore a11y-label-has-associated-control -->
-<label htmlfor={id}>
+<label>
 	{#if type === 'email'}
-		<input {id} type="email" {name} {required} {disabled} placeholder=" " bind:value/>
+		<input type="email" {name} {required} {disabled} placeholder=" " bind:value/>
 	{:else if type === 'password'}
-		<input {id} type="password" {name} {required} {disabled} placeholder=" " bind:value/>
+		<input type="password" {name} {required} {disabled} placeholder=" " bind:value/>
 	{:else}
-		<input {id} type="text" {name} {required} {disabled} placeholder=" " bind:value/>
+		<input type="text" {name} {required} {disabled} placeholder=" " bind:value/>
 	{/if}
 	<span class="input-label">{label}</span>
 	<fieldset>

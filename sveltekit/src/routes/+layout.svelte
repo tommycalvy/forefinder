@@ -5,19 +5,18 @@
     import '../app.css';
 
     export let data: LayoutServerData;
-    
+
   </script>
 
 <svelte:head>
     <title>{$page.data.title}</title>
 </svelte:head>
 
+<Header />
 
 {#if data.user}
     <h1>hi</h1>
 {/if}
-
-<Header />
 
 <main>
     <slot></slot>

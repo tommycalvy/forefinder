@@ -7,13 +7,12 @@
     export let messages: Array<UiText> | undefined;
     export let value: string;
     export let label: string;
-
+    export let type: string = 'text';
 </script>
 
 <fieldset>
     <FormTextInput 
-        id="text"
-        type="text"
+        type={type}
         name={attributes.name}
         required={attributes.required}
         bind:value

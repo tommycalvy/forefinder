@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { LayoutServerData } from "./$types";
+    import type { PageServerData } from "./$types";
 
-    export let data: LayoutServerData;
+    export let data: PageServerData;
 
     /*
     const handleLogout = async () => {

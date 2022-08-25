@@ -20,6 +20,7 @@ export const load: LayoutServerLoad = async ({ request }): Promise<{ user: User 
 		};
 	} catch (err) {
 		if (axios.isAxiosError(err)) {
+			console.log('WOOOOOOOOOOOOOOOOOOOOOOOOOOO!!!!!!!')
 			console.log('axios error');
 			console.log(err);
 		} else {
