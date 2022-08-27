@@ -11,11 +11,11 @@
 <!-- svelte-ignore a11y-label-has-associated-control -->
 <label>
 	{#if type === 'email'}
-		<input type="email" {name} {required} {disabled} placeholder=" " bind:value/>
+		<input type="email" {name} {required} {disabled} placeholder=" " {value}/>
 	{:else if type === 'password'}
-		<input type="password" {name} {required} {disabled} placeholder=" " bind:value/>
+		<input type="password" {name} {required} {disabled} placeholder=" " {value}/>
 	{:else}
-		<input type="text" {name} {required} {disabled} placeholder=" " bind:value/>
+		<input type="text" {name} {required} {disabled} placeholder=" " {value}/>
 	{/if}
 	<span class="input-label">{label}</span>
 	<fieldset>

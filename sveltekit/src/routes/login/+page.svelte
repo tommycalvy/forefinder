@@ -1,23 +1,15 @@
 <script lang="ts">
-	import type { UiNodeInputAttributes } from '@ory/kratos-client';
 	import { isUiNodeInputAttributes } from '$lib/utils/ui';
 	import InputText from '$lib/components/auth/input-text.svelte';
 	import ButtonSubmit from '$lib/components/auth/button-submit.svelte';
 	import Messages from '$lib/components/auth/messages.svelte';
 	import type { PageServerData } from './$types';
 	import { enhance } from '$lib/form';
-	import type { ValidationErrors } from '$lib/auth';
 
 	export let data: PageServerData;
-	export let errors: ValidationErrors;
 
 	console.log(data.ui);
 
-	let fields = data.ui.nodes.reduce<Record<string, string>>((acc, node) => {
-		const { name, value } = node.attributes as UiNodeInputAttributes;
-		acc[name] = value || '';
-		return acc;
-	}, {});
 </script>
 
 <div class="auth-container">
@@ -28,11 +20,9 @@
 			method={data.ui.method}
 			enctype="application/x-www-form-urlencoded"
 			use:enhance={{
-				error: async () => {
-					if (errors && errors.ui) {
-						data.ui = errors.ui;
-						console.log(errors.ui);
-					}
+				error: async ({ response }) => {
+					const { errors } = await response?.json();
+					data.ui = errors.ui;
 				}
 			}}
 		>
@@ -45,7 +35,7 @@
 						<input
 							name={attributes.name}
 							type="hidden"
-							bind:value={fields[attributes.name]}
+							value={attributes.value}
 							required={attributes.required}
 							disabled={attributes.disabled}
 						/>
@@ -56,7 +46,6 @@
 							type="email"
 							{attributes}
 							{messages}
-							bind:value={fields[attributes.name]}
 						/>
 					{/if}
 					{#if attributes.name === 'password'}
@@ -65,7 +54,6 @@
 							type="password"
 							{attributes}
 							{messages}
-							bind:value={fields[attributes.name]}
 						/>
 					{/if}
 					{#if attributes.type === 'submit'}

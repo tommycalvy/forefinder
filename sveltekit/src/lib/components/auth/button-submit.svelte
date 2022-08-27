@@ -10,8 +10,7 @@
 <div>
     <button
         type="submit"
-        formmethod="post"
-        name={attributes.name}
+        name={'auth_' + attributes.name}
         value={attributes.value}
         disabled={attributes.disabled}
     >{label}</button>

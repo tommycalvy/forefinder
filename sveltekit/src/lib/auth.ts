@@ -1,6 +1,6 @@
 import { Configuration, V0alpha2Api, type UiContainer } from '@ory/kratos-client';
 import config from '$lib/config';
-import type { SelfServiceLoginFlow } from '@ory/kratos-client';
+import type { SelfServiceLoginFlow, SelfServiceRegistrationFlow } from '@ory/kratos-client';
 
 export const auth = new V0alpha2Api(
 	new Configuration({
@@ -30,6 +30,19 @@ export const isSelfServiceLoginFlow = (obj: unknown): obj is SelfServiceLoginFlo
 		'ui' in obj
 	);
 };
+
+export const isSelfServiceRegistrationFlow = (obj: unknown): obj is SelfServiceRegistrationFlow => {
+	return (
+		typeof obj === 'object' &&
+		obj !== null &&
+		'expires_at' in obj &&
+		'id' in obj &&
+		'issued_at' in obj &&
+		'request_url' in obj &&
+		'type' in obj &&
+		'ui' in obj
+	);
+}
 
 export interface ValidationErrors {
 	ui: UiContainer;

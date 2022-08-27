@@ -4,17 +4,9 @@
     import InputText from "$lib/components/auth/input-text.svelte";
     import ButtonSubmit from '$lib/components/auth/button-submit.svelte';
     import Messages from "$lib/components/auth/messages.svelte";
-	
-	import type { UiNodeInputAttributes } from '@ory/kratos-client';
+	import { enhance } from '$lib/form';
 
 	export let data: PageServerData;
-
-	let fields = data.ui.nodes.reduce<Record<string, string>>((acc, node) => {
-		const { name, value } = node.attributes as UiNodeInputAttributes;
-		acc[name] = value || '';
-		return acc;
-	}, {});
-	
 </script>
 
 <div class="auth-container">
@@ -24,6 +16,12 @@
 			action={data.ui.action}
 			method={data.ui.method}
 			enctype="application/x-www-form-urlencoded"
+			use:enhance={{
+				error: async ({ response }) => {
+					const { errors } = await response?.json();
+					data.ui = errors.ui;
+				}
+			}}
 			>
 			{#if data.ui.messages}
 				<Messages messages={data.ui.messages} />
@@ -34,19 +32,19 @@
 						<input
 							name={attributes.name}
 							type="hidden"
-							bind:value={fields[attributes.name]}
+							value={attributes.value}
 							required={attributes.required}
 							disabled={attributes.disabled}
 						/>
 					{/if}
 					{#if attributes.name === 'traits.email'}
-						<InputText label="Email Address" type="email" {attributes} {messages} bind:value={fields[attributes.name]} />
+						<InputText label="Email Address" type="email" {attributes} {messages} />
 					{/if}
 					{#if attributes.name === 'password'}
-						<InputText label="Password" type="password" {attributes} {messages} bind:value={fields[attributes.name]} />
+						<InputText label="Password" type="password" {attributes} {messages} />
 					{/if}
                     {#if attributes.name === 'traits.name.first'}
-                        <InputText label="Name" {attributes} {messages}  bind:value={fields[attributes.name]} />
+                        <InputText label="Name" {attributes} {messages} />
                     {/if}
 					{#if attributes.type === 'submit'}
 						<ButtonSubmit label="Sign Up" {attributes} {messages} />

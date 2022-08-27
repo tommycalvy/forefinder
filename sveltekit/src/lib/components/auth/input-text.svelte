@@ -5,7 +5,6 @@
 
     export let attributes: UiNodeInputAttributes;
     export let messages: Array<UiText> | undefined;
-    export let value: string;
     export let label: string;
     export let type: string = 'text';
 </script>
@@ -15,7 +14,7 @@
         type={type}
         name={attributes.name}
         required={attributes.required}
-        bind:value
+        value={attributes.value}
         {label}
         disabled={attributes.disabled}
     />

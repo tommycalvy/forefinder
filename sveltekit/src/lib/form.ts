@@ -39,13 +39,22 @@ export function enhance(
 		event.preventDefault();
 
 		const data = new FormData(form);
+		
 
 		if (pending) pending({ data, form });
 		console.log('hit submit');
 		try {
-			console.log(form.attributes.getNamedItem('method')?.value);
+			const submitName = event.submitter?.getAttribute('name');
+			const submitValue = event.submitter?.getAttribute('value');
+			if (typeof submitName === 'string' && typeof submitValue  === 'string') {
+				data.append(submitName, submitValue);
+			} else {
+				throw new Error('No name or value in submitter element');
+			}
+			
+			console.log(form.method);
 			const response = await fetch(form.action, {
-				method: form.attributes.getNamedItem('method')?.value,
+				method: form.method,
 				headers: {
 					accept: 'application/json'
 				},

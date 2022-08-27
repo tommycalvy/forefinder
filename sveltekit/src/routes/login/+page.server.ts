@@ -28,11 +28,12 @@ export const load: PageServerLoad = async ({
 				aal,
 				returnTo
 			);
-			setHeaders({
-				'set-cookie': headers['set-cookie']
-			});
+			
 			const action = modifyAction('/login', data.ui.action);
 			if (action) {
+				setHeaders({
+					'set-cookie': headers['set-cookie']
+				});
 				data.ui.action = action;
 				return {
 					ui: data.ui,
@@ -56,12 +57,11 @@ export const load: PageServerLoad = async ({
 				returnTo
 			);
 			
-			setHeaders({
-				'set-cookie': headers['set-cookie']
-			});
-			
 			const action = modifyAction('/login', data.ui.action);
 			if (action) {
+				setHeaders({
+					'set-cookie': headers['set-cookie']
+				});
 				data.ui.action = action;
 				return {
 					ui: data.ui,
@@ -104,19 +104,13 @@ export const load: PageServerLoad = async ({
 
 export const POST: Action = async ({ request, setHeaders, url }) => {
 	try {
-		console.log('In post action');
-		console.log('In post action');
-		console.log('In post action');
-		console.log('In post action');
-		console.log('In post action');
-		console.log('In post action');
 		const values = await request.formData();
-
-		const method = values.get('method') ?? undefined;
+		
+		const authMethod = values.get('auth_method') ?? undefined;
 		const flowId = url.searchParams.get('flow') ?? undefined;
 		const cookie = request.headers.get('cookie') ?? undefined;
 
-		if (typeof method !== 'string') {
+		if (typeof authMethod !== 'string') {
 			const err = new Error('No method attribute in post body');
 			console.log(err);
 			return {
@@ -133,13 +127,13 @@ export const POST: Action = async ({ request, setHeaders, url }) => {
 		}
 
 		const csrf_token = values.get('csrf_token') ?? undefined;
-		if (method === 'oidc') {
+		if (authMethod === 'oidc') {
 			const provider = values.get('provider') ?? undefined;
 			if (typeof provider === 'string' && typeof csrf_token === 'string') {
 				const flowBody: SubmitSelfServiceLoginFlowWithOidcMethodBody = {
 					csrf_token,
 					provider,
-					method
+					method: authMethod
 				};
 				const { headers } = await auth.submitSelfServiceLoginFlow(
 					flowId,
@@ -159,7 +153,7 @@ export const POST: Action = async ({ request, setHeaders, url }) => {
 			return {
 				location: '/login'
 			};
-		} else if (method === 'password') {
+		} else if (authMethod === 'password') {
 			const identifier = values.get('identifier') ?? undefined;
 			const password = values.get('password') ?? undefined;
 			if (
@@ -171,7 +165,7 @@ export const POST: Action = async ({ request, setHeaders, url }) => {
 					csrf_token,
 					identifier,
 					password,
-					method
+					method: authMethod
 				};
 				const { headers } = await auth.submitSelfServiceLoginFlow(
 					flowId,
@@ -209,6 +203,7 @@ export const POST: Action = async ({ request, setHeaders, url }) => {
                     const action = modifyAction('/login', err.response.data.ui.action);
                     if (action) {
                         err.response.data.ui.action = action;
+						err.response.data.ui.method = 'auth_' + err.response.data.ui.method
                         return {
                             errors: {
                                 ui: err.response.data.ui
