@@ -63,10 +63,6 @@
 		position: absolute;
 		color: var(--input-label-color);
 
-		/*
-		margin-left: -21.1rem;
-        TODO: try transform-origin in the ory login page
-        */
 		display: block;
 		transform-origin: left top;
 		margin-top: -2rem;

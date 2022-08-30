@@ -5,10 +5,9 @@
 	import Messages from '$lib/components/auth/messages.svelte';
 	import type { PageServerData } from './$types';
 	import { enhance } from '$lib/form';
+	import { goto } from "$app/navigation";
 
 	export let data: PageServerData;
-
-	console.log(data.ui);
 
 </script>
 
@@ -23,6 +22,9 @@
 				error: async ({ response }) => {
 					const { errors } = await response?.json();
 					data.ui = errors.ui;
+				},
+				redirect: ({ response }) => {
+					goto(response.headers.get('location') ?? '/');
 				}
 			}}
 		>

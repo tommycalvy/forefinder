@@ -1,19 +1,13 @@
 <script lang="ts">
     import type { PageServerData } from "./$types";
-
+	import { colorGenerator } from "$lib/utils/color-generator";
     export let data: PageServerData;
 
-    /*
-    const handleLogout = async () => {
-		const logoutHeaders = logoutToken ? new Headers({ logout_token: logoutToken }) : undefined;
-		const res = await fetch('/auth/logout', {
-			headers: logoutHeaders
-		})
-		console.log(res);
-		//await goto('/login');
-	}
-    */
+	let color = "hsl(150, 100%, 50%)";
 
+	function newColor() {
+		color = colorGenerator();
+	}
 </script>
 
 
@@ -25,12 +19,18 @@
 
 	{#if data.user}
 		<h1>Hello {data.user.name}!</h1>
-		<button>Log Out</button>
 	{:else}
 		<a href="/login"><button>Log In</button></a>
 		<p>or</p>
 		<a href="/registration"><button>Sign Up</button></a>
 	{/if}
+	<br>
+	<br>
+	<br>
+	<button on:click={newColor}>New Color</button>
+	<div class="user-circle" style="background-color: {color}">
+		<span>{data.user?.name.charAt(0).toUpperCase() ?? 'T'}</span>
+	</div>
 </section>
 
 <style>
@@ -44,5 +44,22 @@
 
 	h1 {
 		width: 100%;
+	}
+
+	.user-circle {
+		margin-top: 2rem;
+		display: flex;
+		justify-content: center;
+		flex-direction: column;
+		width: 3rem;
+		height: 3rem;
+		border-radius: 50%;
+	}
+
+
+	.user-circle span {
+		text-align: center;
+		color: var(--pure-white);
+		font-size: large;
 	}
 </style>

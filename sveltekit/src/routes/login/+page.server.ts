@@ -8,7 +8,9 @@ import type {
 } from '@ory/kratos-client';
 import { isSelfServiceLoginFlow } from '$lib/auth';
 import axios from 'axios';
+import type { AxiosError } from 'axios';
 
+/*
 export const load: PageServerLoad = async ({
 	parent,
 	url,
@@ -46,7 +48,8 @@ export const load: PageServerLoad = async ({
 
 		const { user } = await parent();
 		if (user) {
-			throw redirect(307, '/');
+			console.log('User detected. Trying to redirect.');
+			return redirect(307, '/');
 		}
 
 		if (!flowId) {
@@ -97,15 +100,125 @@ export const load: PageServerLoad = async ({
 			throw error(500, 'Error with login page load');
 		} else {
 			console.log(err);
+			console.log('Error with login page load');
 			throw error(500, 'Error with login page load');
 		}
 	}
+};
+*/
+
+export const load: PageServerLoad = async ({
+	parent,
+	url,
+	request,
+	setHeaders
+}): Promise<{ ui: UiContainer; title: string }> => {
+	const flowId = url.searchParams.get('flow') ?? undefined;
+	const refresh = url.searchParams.get('refresh') === 'true' ? true : false;
+	const aal = url.searchParams.get('aal') ?? undefined;
+	const returnTo = url.searchParams.get('returnTo') ?? undefined;
+
+	if (refresh) {
+		return await auth.initializeSelfServiceLoginFlowForBrowsers(refresh, aal, returnTo).then(
+			({ data: { ui }, headers }) => {
+				const action = modifyAction('/login', ui.action);
+				if (action) {
+					setHeaders({
+						'set-cookie': headers['set-cookie']
+					});
+					ui.action = action;
+					return {
+						ui,
+						title: 'Forefinder Login'
+					};
+				}
+				console.log('Err: No action in UiContainer in login load');
+				throw error(500, 'Error with login page load');
+			},
+			(err: AxiosError) => {
+				console.log(err);
+				throw error(500, 'Error with login page load');
+			}
+		);
+	}
+
+	const { user } = await parent();
+	if (user) {
+		console.log('User detected. Redirecting to /');
+		throw redirect(307, '/');
+	}
+
+	if (!flowId) {
+		console.log('no flowId');
+		return await auth.initializeSelfServiceLoginFlowForBrowsers(refresh, aal, returnTo).then(
+			({ data: { ui }, headers }) => {
+				const action = modifyAction('/login', ui.action);
+				if (action) {
+					setHeaders({
+						'set-cookie': headers['set-cookie']
+					});
+					ui.action = action;
+					console.log('About to return ui');
+					return {
+						ui,
+						title: 'Forefinder Login'
+					};
+				}
+				console.log('Err: No action in UiContainer in login load');
+				throw error(500, 'Error with login page load');
+			},
+			(err) => {
+				console.log(err);
+				throw error(500, 'Error with login page load');
+			}
+		);
+	}
+
+	let cookie = request.headers.get('cookie') ?? undefined;
+	if (cookie) {
+		cookie = decodeURIComponent(cookie);
+	}
+	return await auth.getSelfServiceLoginFlow(flowId, cookie).then(
+		({ data: { ui }, headers }) => {
+			const action = modifyAction('/login', ui.action);
+			if (action) {
+				setHeaders({
+					'set-cookie': headers['set-cookie']
+				});
+				ui.action = action;
+				console.log('About to return getLogin ui');
+				return {
+					ui,
+					title: 'Forefinder Login'
+				};
+			}
+			console.log('Err: No action in UiContainer in login load');
+			throw error(500, 'Error with login page load');
+		},
+		(err: AxiosError) => {
+			if (err.response?.status === 400) {
+				const action = modifyAction('/login', err.response.data.ui.action);
+				if (action) {
+					err.response.data.ui.action = action;
+					console.log('About to return getLogin error ui');
+					return {
+						ui: err.response.data.ui,
+						title: 'Forefinder Login'
+					};
+				}
+				console.log('AxiosError: No action in UiContainer in login load');
+				throw error(500, 'Error with login page load');
+			}
+			console.log(err);
+			throw error(500, 'Error with login page load');
+		}
+	);
 };
 
 export const POST: Action = async ({ request, setHeaders, url }) => {
 	try {
 		const values = await request.formData();
-		
+
 		const authMethod = values.get('auth_method') ?? undefined;
 		const flowId = url.searchParams.get('flow') ?? undefined;
 		const cookie = request.headers.get('cookie') ?? undefined;
@@ -194,24 +307,22 @@ export const POST: Action = async ({ request, setHeaders, url }) => {
 	} catch (err) {
 		if (axios.isAxiosError(err)) {
 			if (err.response && err.response.status === 400) {
-                console.log(err);
-			    console.log('Login error page status');
-			    console.log(err.response.status);
-			    console.log('Login error page data');
-			    console.log(err.response.data);
+				console.log(err);
+				console.log('Login error page status');
+				console.log(err.response.status);
+				console.log('Login error page data');
+				console.log(err.response.data);
 				if (isSelfServiceLoginFlow(err.response.data)) {
-                    const action = modifyAction('/login', err.response.data.ui.action);
-                    if (action) {
-                        err.response.data.ui.action = action;
-						err.response.data.ui.method = 'auth_' + err.response.data.ui.method
-                        return {
-                            errors: {
-                                ui: err.response.data.ui
-                            },
-                            status: 400
-                        };
-                    }
-					
+					const action = modifyAction('/login', err.response.data.ui.action);
+					if (action) {
+						err.response.data.ui.action = action;
+						return {
+							errors: {
+								ui: err.response.data.ui
+							},
+							status: 400
+						};
+					}
 				}
 			}
 			return {

@@ -16,6 +16,7 @@ export interface User {
 	email: string;
 	name: string;
 	verified: boolean;
+	color: string;
 }
 
 export const isSelfServiceLoginFlow = (obj: unknown): obj is SelfServiceLoginFlow => {

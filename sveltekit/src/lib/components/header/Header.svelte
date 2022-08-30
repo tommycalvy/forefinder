@@ -8,7 +8,11 @@
 	import FriendsOutlined from '$lib/components/icons/friends-outlined.svelte';
 
 	import ForefinderLogo from '$lib/components/forefinder-logo-a.svelte';
-	import UserFilled from '$lib/components/icons/user-filled.svelte';
+	import UserNavCircle from './user-nav-circle.svelte';
+	import type { User } from "$lib/auth";
+
+	export let user: User;
+	export let logoutToken: string;
 
 	const nav = [
 		{
@@ -62,7 +66,7 @@
 	</nav>
 	<div class="sides">
 		<span class="right">
-			<UserFilled width={36} height={36} />
+			<UserNavCircle {user} {logoutToken} />
 		</span>
 	</div>
 </header>

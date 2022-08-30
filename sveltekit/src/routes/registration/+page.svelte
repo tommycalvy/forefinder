@@ -5,8 +5,10 @@
     import ButtonSubmit from '$lib/components/auth/button-submit.svelte';
     import Messages from "$lib/components/auth/messages.svelte";
 	import { enhance } from '$lib/form';
+	import { goto } from "$app/navigation";
 
 	export let data: PageServerData;
+	console.log(data.ui);
 </script>
 
 <div class="auth-container">
@@ -20,6 +22,9 @@
 				error: async ({ response }) => {
 					const { errors } = await response?.json();
 					data.ui = errors.ui;
+				},
+				redirect: ({ response }) => {
+					goto(response.headers.get('location') ?? '/');
 				}
 			}}
 			>
@@ -38,10 +43,10 @@
 						/>
 					{/if}
 					{#if attributes.name === 'traits.email'}
-						<InputText label="Email Address" type="email" {attributes} {messages} />
+						<InputText label="Email Address" type="email" {attributes} {messages} value={attributes.value} />
 					{/if}
 					{#if attributes.name === 'password'}
-						<InputText label="Password" type="password" {attributes} {messages} />
+						<InputText label="Password" type="password" {attributes} {messages} value={attributes.value}/>
 					{/if}
                     {#if attributes.name === 'traits.name.first'}
                         <InputText label="Name" {attributes} {messages} />

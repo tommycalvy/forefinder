@@ -5,7 +5,8 @@ export function enhance(
 	{
 		pending,
 		error,
-		result
+		result,
+		redirect
 	}: {
 		pending?: ({ data, form }: { data: FormData; form: HTMLFormElement }) => void;
 		error?: ({
@@ -28,9 +29,17 @@ export function enhance(
 			response: Response;
 			form: HTMLFormElement;
 		}) => void;
+		redirect?: ({
+			data,
+			form,
+			response
+		}: {
+			data: FormData;
+			response: Response;
+			form: HTMLFormElement;
+		}) => void;
 	}
 ): { destroy(): void } {
-
 	let current_token;
 
 	async function handle_submit(event: SubmitEvent) {
@@ -39,19 +48,18 @@ export function enhance(
 		event.preventDefault();
 
 		const data = new FormData(form);
-		
 
 		if (pending) pending({ data, form });
 		console.log('hit submit');
 		try {
 			const submitName = event.submitter?.getAttribute('name');
 			const submitValue = event.submitter?.getAttribute('value');
-			if (typeof submitName === 'string' && typeof submitValue  === 'string') {
+			if (typeof submitName === 'string' && typeof submitValue === 'string') {
 				data.append(submitName, submitValue);
 			} else {
 				throw new Error('No name or value in submitter element');
 			}
-			
+
 			console.log(form.method);
 			const response = await fetch(form.action, {
 				method: form.method,
@@ -65,15 +73,18 @@ export function enhance(
 			if (token !== current_token) {
 				console.log('token !== current_token');
 				return;
-			} 
+			}
 
 			if (response.ok) {
 				if (result) result({ data, form, response });
 
-				const url = new URL(form.action);
-				url.search = url.hash = '';
-				invalidate(url.href);
-				console.log('Response is ok');
+				if (redirect) {
+					redirect({ data, form, response });
+				} else {
+					const url = new URL(form.action);
+					url.search = url.hash = '';
+					invalidate(url.href);
+				}
 			} else if (error) {
 				error({ data, form, error: null, response });
 				console.log('Error from fetch');

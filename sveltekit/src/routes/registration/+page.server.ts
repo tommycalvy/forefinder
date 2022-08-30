@@ -7,6 +7,7 @@ import type {
 	SubmitSelfServiceRegistrationFlowWithOidcMethodBody,
 	SubmitSelfServiceRegistrationFlowWithPasswordMethodBody
 } from '@ory/kratos-client';
+import { colorGenerator } from "$lib/utils/color-generator";
 
 export const load: PageServerLoad = async ({
 	parent,
@@ -98,6 +99,8 @@ export const POST: Action = async ({ request, url, setHeaders }) => {
 		}
 
 		const csrf_token = values.get('csrf_token') ?? undefined;
+		const color = colorGenerator();
+		
 		if (authMethod === 'oidc') {
 			const provider = values.get('provider') ?? undefined;
 			if (typeof provider === 'string' && typeof csrf_token === 'string') {
@@ -109,7 +112,8 @@ export const POST: Action = async ({ request, url, setHeaders }) => {
 						email: values.get('traits.email') ?? undefined,
 						name: {
 							first: values.get('traits.name.first') ?? undefined
-						}
+						},
+						color,
 					}
 				};
 				const { headers } = await auth.submitSelfServiceRegistrationFlow(flowId, flowBody, cookie);
@@ -136,7 +140,8 @@ export const POST: Action = async ({ request, url, setHeaders }) => {
 						email: values.get('traits.email'),
 						name: {
 							first: values.get('traits.name.first')
-						}
+						},
+						color
 					}
 				};
 				const { headers } = await auth.submitSelfServiceRegistrationFlow(flowId, flowBody, cookie);
@@ -170,7 +175,6 @@ export const POST: Action = async ({ request, url, setHeaders }) => {
 					const action = modifyAction('/registration', err.response.data.ui.action);
 					if (action) {
 						err.response.data.ui.action = action;
-						err.response.data.ui.method = 'auth_' + err.response.data.ui.method;
 						return {
 							errors: {
 								ui: err.response.data.ui

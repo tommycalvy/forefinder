@@ -12,10 +12,8 @@
     <title>{$page.data.title}</title>
 </svelte:head>
 
-<Header />
-
 {#if data.user}
-    <h1>hi</h1>
+    <Header user={data.user} logoutToken={data.logout_token} />
 {/if}
 
 <main>
