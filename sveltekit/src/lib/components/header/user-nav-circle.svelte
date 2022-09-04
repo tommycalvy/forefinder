@@ -40,12 +40,11 @@
     <h2>{user.name}</h2>
     <h5>{user.email}</h5>
     {#if !user.verified}
-        <hr>
-        <h3>Verify Email</h3>
-        <p>Please verify your email because only verified emails can be used to reset a password.</p>
+        <br>
+        <a href="/verification"><button on:click={toggleCard}>Verify Email</button></a>
     {/if}
     <hr>
-    <a href="/settings" on:click={toggleCard}>Account Settings</a>
+    <a href="/settings"><button on:click={toggleCard}>Account Settings</button></a>
     <br>
     <button on:click={handleLogout}>Log Out</button>
 </div>

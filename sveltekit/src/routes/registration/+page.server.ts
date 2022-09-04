@@ -7,8 +7,9 @@ import type {
 	SubmitSelfServiceRegistrationFlowWithOidcMethodBody,
 	SubmitSelfServiceRegistrationFlowWithPasswordMethodBody
 } from '@ory/kratos-client';
-import { colorGenerator } from "$lib/utils/color-generator";
+import { colorGenerator } from '$lib/utils/color-generator';
 
+/*
 export const load: PageServerLoad = async ({
 	parent,
 	url,
@@ -73,6 +74,69 @@ export const load: PageServerLoad = async ({
 		}
 	}
 };
+*/
+
+export const load: PageServerLoad = async ({
+	parent,
+	url,
+	setHeaders,
+	request
+}): Promise<{ ui: UiContainer; title: string }> => {
+	const { user } = await parent();
+	if (user) {
+		throw redirect(307, '/');
+	}
+
+	const flowId = url.searchParams.get('flow') ?? undefined;
+	const returnTo = url.searchParams.get('returnTo') ?? undefined;
+
+	if (!flowId) {
+		return await auth.initializeSelfServiceRegistrationFlowForBrowsers(returnTo).then(
+			({ data: { ui }, headers }) => {
+				const action = modifyAction('/registration', ui.action);
+				if (action) {
+					setHeaders({
+						'set-cookie': headers['set-cookie']
+					});
+					ui.action = action;
+					return {
+						ui,
+						title: 'Forefinder Registration'
+					};
+				}
+				console.log('Err: No flow in action in UiContainer in registration load');
+				throw error(500, 'Error with registration page load');
+			},
+			(err) => {
+				console.log(err);
+				throw error(500, 'Error with registration page load');
+			}
+		);
+	}
+
+	let cookie = request.headers.get('cookie') ?? undefined;
+	if (cookie) {
+		cookie = decodeURIComponent(cookie);
+	}
+	return await auth.getSelfServiceRegistrationFlow(flowId, cookie).then(
+		({ data: { ui } }) => {
+			const action = modifyAction('/registration', ui.action);
+			if (action) {
+				ui.action = action;
+				return {
+					ui,
+					title: 'Forefinder Registration'
+				};
+			}
+			console.log('Err: No flow in action in UiContainer in registration load');
+			throw error(500, 'Error with registration page load');
+		},
+		(err) => {
+			console.log(err);
+			throw error(500, 'Error with registration page load');
+		}
+	);
+};
 
 export const POST: Action = async ({ request, url, setHeaders }) => {
 	try {
@@ -100,7 +164,7 @@ export const POST: Action = async ({ request, url, setHeaders }) => {
 
 		const csrf_token = values.get('csrf_token') ?? undefined;
 		const color = colorGenerator();
-		
+
 		if (authMethod === 'oidc') {
 			const provider = values.get('provider') ?? undefined;
 			if (typeof provider === 'string' && typeof csrf_token === 'string') {
@@ -113,7 +177,7 @@ export const POST: Action = async ({ request, url, setHeaders }) => {
 						name: {
 							first: values.get('traits.name.first') ?? undefined
 						},
-						color,
+						color
 					}
 				};
 				const { headers } = await auth.submitSelfServiceRegistrationFlow(flowId, flowBody, cookie);

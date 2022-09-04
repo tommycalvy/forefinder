@@ -12,6 +12,12 @@
 			<div class="message" data-testid="ui/message/{id}">{text}</div>
 		</div>
 	{/if}
+	{#if type === 'info'}
+		<div class="info-card">
+			<AlertIndicator />
+			<div class="message" data-testid="ui/message/{id}">{text}</div>
+		</div>
+	{/if}
 {/each}
 
 
@@ -29,6 +35,16 @@
 	.message {
 		color: inherit;
 		padding: 0rem 1rem;
+	}
+
+	.info-card {
+		/* TODO: Make a nicer info card message */
+		display: flex;
+		width: 20rem;
+		padding: 1rem 0.5rem 1rem 1rem;
+		color: var(--error-message-color);
+		background-color: var(--error-card-color);
+		font-size: 0.9rem;
 	}
     
 </style>

@@ -38,7 +38,7 @@ services:
             - kratos-migrate
         image: oryd/kratos:v0.10.1
         restart: unless-stopped
-        command: serve -c /etc/config/kratos/kratos.yml --dev
+        command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier
         volumes:
             -
                 type: bind
