@@ -7,7 +7,10 @@ export const GET: RequestHandler = async ({ url, request }) => {
 	const publicUrl = config.kratos.public;
 	const flowId = url.searchParams.get('flow') ?? undefined;
 	const token = url.searchParams.get('token') ?? undefined;
-    const cookie = request.headers.get('cookie') ?? undefined;
+    let cookie = request.headers.get('cookie') ?? undefined;
+	if (cookie) {
+		cookie = decodeURIComponent(cookie);
+	}
 
 	if (!flowId || !token) {
 		throw error(400, 'Incorrect query parameters');

@@ -190,9 +190,16 @@ export const POST: Action = async ({ request, setHeaders, url }) => {
 				setHeaders({
 					'set-cookie': headers['set-cookie']
 				});
-				return {
-					location: '/'
-				};
+				if (headers['location']) {
+					return {
+						location: headers['location']
+					}
+				} else {
+					return {
+						location: '/'
+					};
+				}
+				
 			}
 			const err = new Error('Incorrect form data');
 			console.log(err);

@@ -33,8 +33,7 @@
 				error: async ({ response }) => {
 					const { errors } = await response?.json();
 					data.ui = errors.ui;
-				},
-				redirect: () => {}
+				}
 			}}
 		>
 			{#if data.ui.messages}

@@ -76,11 +76,13 @@ export function enhance(
 			}
 
 			if (response.ok) {
-				if (result) result({ data, form, response });
-
 				if (redirect) {
 					redirect({ data, form, response });
+				}
+				if (result) {
+					result({ data, form, response }) 
 				} else {
+					console.log('invalidating');
 					const url = new URL(form.action);
 					url.search = url.hash = '';
 					invalidate(url.href);
