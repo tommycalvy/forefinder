@@ -1,11 +1,9 @@
 <script lang="ts">
 	import type { PageServerData } from './$types';
-    import { isUiNodeInputAttributes } from '$lib/utils/ui';
-    import InputText from "$lib/components/auth/input-text.svelte";
-    import ButtonSubmit from '$lib/components/auth/button-submit.svelte';
-    import Messages from "$lib/components/auth/messages.svelte";
-	import { enhance } from '$lib/form';
-	import { goto } from "$app/navigation";
+	import { isUiNodeInputAttributes } from '$lib/utils/ui';
+	import InputText from '$lib/components/auth/input-text.svelte';
+	import ButtonSubmit from '$lib/components/auth/button-submit.svelte';
+	import Messages from '$lib/components/auth/messages.svelte';
 
 	export let data: PageServerData;
 	console.log(data.ui);
@@ -14,20 +12,11 @@
 <div class="auth-container">
 	<div class="card">
 		<h2>Create your forefinder account</h2>
-			<form
+		<form
 			action={data.ui.action}
 			method={data.ui.method}
 			enctype="application/x-www-form-urlencoded"
-			use:enhance={{
-				error: async ({ response }) => {
-					const { errors } = await response?.json();
-					data.ui = errors.ui;
-				},
-				redirect: ({ response }) => {
-					goto(response.headers.get('location') ?? '/');
-				}
-			}}
-			>
+		>
 			{#if data.ui.messages}
 				<Messages messages={data.ui.messages} />
 			{/if}
@@ -43,20 +32,32 @@
 						/>
 					{/if}
 					{#if attributes.name === 'traits.email'}
-						<InputText label="Email Address" type="email" {attributes} {messages} value={attributes.value} />
+						<InputText
+							label="Email Address"
+							type="email"
+							{attributes}
+							{messages}
+							value={attributes.value}
+						/>
 					{/if}
 					{#if attributes.name === 'password'}
-						<InputText label="Password" type="password" {attributes} {messages} value={attributes.value}/>
+						<InputText
+							label="Password"
+							type="password"
+							{attributes}
+							{messages}
+							value={attributes.value}
+						/>
 					{/if}
-                    {#if attributes.name === 'traits.name.first'}
-                        <InputText label="Name" {attributes} {messages} />
-                    {/if}
+					{#if attributes.name === 'traits.name.first'}
+						<InputText label="Name" {attributes} {messages} />
+					{/if}
 					{#if attributes.type === 'submit'}
 						<ButtonSubmit label="Sign Up" {attributes} {messages} />
 					{/if}
 				{/if}
 			{/each}
-		</form>	
+		</form>
 	</div>
 </div>
 
@@ -87,5 +88,4 @@
 		flex-direction: column;
 		row-gap: 1.5rem;
 	}
-	
 </style>

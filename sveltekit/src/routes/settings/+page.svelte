@@ -4,10 +4,7 @@
 	import ButtonSubmit from '$lib/components/auth/button-submit.svelte';
 	import Messages from '$lib/components/auth/messages.svelte';
 	import type { PageServerData } from './$types';
-	import { enhance } from '$lib/form';
-    import { goto } from "$app/navigation";
-
-
+	
 	export let data: PageServerData;
 
 	console.log(data.ui);
@@ -18,44 +15,11 @@
 		<h2>Settings</h2>
         <br>
         <br>
-		<form
+        <form
 			action={data.ui.action}
 			method={data.ui.method}
 			enctype="application/x-www-form-urlencoded"
-			use:enhance={{
-                result: async ({ response }) => {
-                    console.log('hi');
-                    if (response) {
-                        if (response.status === 200) {
-                            const { errors } = await response.json();
-                            console.log(errors);
-                            if (errors.ui) {
-                                data.ui = errors.ui;
-                            }
-                        }
-                    }   
-                },
-				error: async ({ response }) => {
-                    if (response) {
-                        if (response.status === 400) {
-                            const { errors } = await response.json();
-					        data.ui = errors.ui;
-                        }
-                    }
-				},
-                redirect: ({ response }) => {
-                    console.log('hi2');
-                    const redirectTo = response.headers.get('location') ?? undefined;
-                    console.log('hi3');
-                    console.log('redirectTo: ', redirectTo);
-                    console.log(response);
-                    if (redirectTo) {
-                        console.log('hi4');
-                        goto(redirectTo);
-                    }
-                }
-			}}
-		>
+        >
 			{#if data.ui.messages}
 				<Messages messages={data.ui.messages} />
 			{/if}
@@ -75,6 +39,15 @@
 					{/if}
                     {#if attributes.name === 'traits.name.first'}
                         <InputText label="Name" {attributes} {messages} value={attributes.value} />
+                    {/if}
+                    {#if attributes.name === 'traits.color'}
+                        <input
+                            name={attributes.name}
+                            type="hidden"
+                            value={attributes.value}
+                            required={attributes.required}
+                            disabled={attributes.disabled} 
+                        />
                     {/if}
                     {#if attributes.name === 'password'}
 						<InputText label="Password" type="password" {attributes} {messages} value={attributes.value}/>

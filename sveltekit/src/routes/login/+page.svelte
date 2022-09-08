@@ -4,10 +4,9 @@
 	import ButtonSubmit from '$lib/components/auth/button-submit.svelte';
 	import Messages from '$lib/components/auth/messages.svelte';
 	import type { PageServerData } from './$types';
-	import { enhance } from '$lib/form';
-	import { goto } from "$app/navigation";
 
 	export let data: PageServerData;
+	console.log(data.ui);
 
 </script>
 
@@ -18,15 +17,6 @@
 			action={data.ui.action}
 			method={data.ui.method}
 			enctype="application/x-www-form-urlencoded"
-			use:enhance={{
-				error: async ({ response }) => {
-					const { errors } = await response?.json();
-					data.ui = errors.ui;
-				},
-				redirect: ({ response }) => {
-					goto(response.headers.get('location') ?? '/');
-				}
-			}}
 		>
 			{#if data.ui.messages}
 				<Messages messages={data.ui.messages} />

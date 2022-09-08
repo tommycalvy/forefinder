@@ -4,7 +4,6 @@
 	import ButtonSubmit from '$lib/components/auth/button-submit.svelte';
 	import Messages from '$lib/components/auth/messages.svelte';
 	import type { PageServerData } from './$types';
-	import { enhance } from '$lib/form';
 
 	export let data: PageServerData;
 
@@ -23,18 +22,6 @@
 			action={data.ui.action}
 			method={data.ui.method}
 			enctype="application/x-www-form-urlencoded"
-			use:enhance={{
-				result: async ({ response }) => {
-					console.log('Errors in result!');
-					const { errors } = await response.json();
-					console.log(errors);
-					data.ui = errors.ui;
-				},
-				error: async ({ response }) => {
-					const { errors } = await response?.json();
-					data.ui = errors.ui;
-				}
-			}}
 		>
 			{#if data.ui.messages}
 				<Messages messages={data.ui.messages} />

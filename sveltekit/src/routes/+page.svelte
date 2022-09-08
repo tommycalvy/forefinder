@@ -7,6 +7,7 @@
 
 	function newColor() {
 		color = colorGenerator();
+		console.log('color: ', color);
 	}
 </script>
 

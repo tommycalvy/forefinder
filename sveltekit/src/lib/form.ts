@@ -5,8 +5,7 @@ export function enhance(
 	{
 		pending,
 		error,
-		result,
-		redirect
+		result
 	}: {
 		pending?: ({ data, form }: { data: FormData; form: HTMLFormElement }) => void;
 		error?: ({
@@ -21,15 +20,6 @@ export function enhance(
 			error: Error | null;
 		}) => void;
 		result?: ({
-			data,
-			form,
-			response
-		}: {
-			data: FormData;
-			response: Response;
-			form: HTMLFormElement;
-		}) => void;
-		redirect?: ({
 			data,
 			form,
 			response
@@ -76,11 +66,8 @@ export function enhance(
 			}
 
 			if (response.ok) {
-				if (redirect) {
-					redirect({ data, form, response });
-				}
 				if (result) {
-					result({ data, form, response }) 
+					result({ data, form, response });
 				} else {
 					console.log('invalidating');
 					const url = new URL(form.action);

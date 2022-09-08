@@ -8,9 +8,7 @@ export const GET: RequestHandler = async ({ url, request }) => {
 	const flowId = url.searchParams.get('flow') ?? undefined;
 	const token = url.searchParams.get('token') ?? undefined;
     let cookie = request.headers.get('cookie') ?? undefined;
-	if (cookie) {
-		cookie = decodeURIComponent(cookie);
-	}
+	if (cookie) cookie = decodeURIComponent(cookie);
 
 	if (!flowId || !token) {
 		throw error(400, 'Incorrect query parameters');
