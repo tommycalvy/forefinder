@@ -1,8 +1,8 @@
-###### ForeFinder is a golf community web application where golfers can find other golfers.
+##### ForeFinder is a golf community web application where golfers can find other golfers.
 
 # ForeFinder Web Application MVP v1
 
-#### Functional Requirements
+### Functional Requirements
 
 - **User Authentication**
     - Create account
@@ -33,7 +33,7 @@
     - Send email notifications when someone messages them
     - limited to one email a day
 
-#### Non-functional Requirements ###
+### Non-functional Requirements ###
 - **Scalable**
 - **Performant**
 - **Cheap to run**
