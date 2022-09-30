@@ -1,5 +1,5 @@
 import { Configuration, V0alpha2Api } from '@ory/kratos-client';
-import config from '$lib/config';
+import config from '$lib/server/config';
 
 export const auth = new V0alpha2Api(
 	new Configuration({

@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 )
 
 var (
@@ -24,12 +24,14 @@ type repo struct {
 	TableName 		string
 }
 
-func NewProfileRepo(dbpool *pgxpool.Pool, tableName string) Repository {
+func NewProfileRepo(tableName string) Repository {
 	// Initialize a session that the SDK will use to load
 	// credentials from the shared credentials file ~/.aws/credentials
 	// and region from the shared configuration file ~/.aws/config.
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
-    	SharedConfigState: session.SharedConfigEnable,
+    	Config: aws.Config {
+			Endpoint: aws.String("http://localhost:8000"),
+		},
 	}))
 
 	// Create DynamoDB client
@@ -61,24 +63,111 @@ func (r *repo) CreateProfile(ctx context.Context, p Profile) error {
 	return nil
 }
 	
-func (r *repo) GetProfile(ctx context.Context, id string) (Profile, error) {
+func (r *repo) GetProfile(ctx context.Context, id string, profileType string) (Profile, error) {
+	result, err := r.Dynamo.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(r.TableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			"ID": {
+				S: aws.String(id),
+			},
+			"Metadata": {
+				S: aws.String(profileType),
+			},
+		},
+	})
+	if err != nil {
+		log.Printf("Got error calling GetItem: %s", err)
+	}
+
+	p := Profile{}
+
+	if result.Item == nil {
+		return p, ErrNotFound
+	}
+		
+	err = dynamodbattribute.UnmarshalMap(result.Item, &p)
+	if err != nil {
+		log.Printf("Failed to unmarshal Record, %v", err)
+		return p, ErrRepo
+	}
 	
 	return p, nil
 }
 	
 func (r *repo) UpdateProfile(ctx context.Context, newP Profile) (Profile, error) {
-		
-	return p, nil
+	p := Profile{}
+	expr, err := expression.NewBuilder().WithUpdate(
+		expression.Set(
+			expression.Name("FirstName"),
+			expression.Value(newP.FirstName),
+		),
+	).Build()
+	if err != nil {
+		log.Printf("Failed to build expression, %v", err)
+        return p, ErrRepo
+    }
 
+	input := &dynamodb.UpdateItemInput{
+		
+		TableName: aws.String(r.TableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			"ID": {
+				S: aws.String(newP.ID),
+			},
+			"Metadata": {
+				S: aws.String(newP.ProfileType),
+			},
+		},
+		ExpressionAttributeNames: expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		UpdateExpression: expr.Update(),
+		ReturnValues:     aws.String("ALL_NEW"),
+		
+	}
+	
+	out, err := r.Dynamo.UpdateItem(input)
+	if err != nil {
+		log.Printf("Got error calling UpdateItem: %s", err)
+		return p, ErrRepo
+	}
+	err = dynamodbattribute.UnmarshalMap(out.Attributes, &p)
+	if err != nil {
+		log.Printf("Failed to unmarshal Record, %v", err)
+		return p, ErrRepo
+	}
+
+	return p, nil
 }
 	
-func (r *repo) DeleteProfile(ctx context.Context, id string) error {
+func (r *repo) DeleteProfile(ctx context.Context, id string, profileType string) error {
 	
+	input := &dynamodb.DeleteItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"ID": {
+				N: aws.String(id),
+			},
+			"Metadata": {
+				S: aws.String(profileType),
+			},
+		},
+		TableName: aws.String(r.TableName),
+	}
+	
+	_, err := r.Dynamo.DeleteItem(input)
+	if err != nil {
+		log.Printf("Got error calling DeleteItem: %s", err)
+		return ErrRepo
+	}
+
 	return nil
 }
+
+/*
 
 func (r *repo) SearchProfilesByDistance(ctx context.Context, lat float64, lon float64, meters int) ([]Profile, error) {
 	
 
 	return profiles, nil
 }
+
+*/

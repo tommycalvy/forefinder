@@ -8,10 +8,10 @@ import (
 
 type Service interface {
 	CreateProfile(ctx context.Context, p profile.Profile) (profile.Profile, error)
-	GetProfile(ctx context.Context, id string) (profile.Profile, error)
+	GetProfile(ctx context.Context, id string, profileType string) (profile.Profile, error)
 	UpdateProfile(ctx context.Context, p profile.Profile) (profile.Profile, error)
-	DeleteProfile(ctx context.Context, id string) error
-	SearchProfilesByDistance(ctx context.Context, lat float64, lon float64, miles int) ([]profile.Profile, error)
+	DeleteProfile(ctx context.Context, id string, profileType string) error
+	//SearchProfilesByDistance(ctx context.Context, lat float64, lon float64, miles int) ([]profile.Profile, error)
 }
 
 type service struct {
@@ -30,8 +30,8 @@ func (s *service) CreateProfile(ctx context.Context, p profile.Profile) (profile
 	}
 	return p, nil
 }
-func (s *service) GetProfile(ctx context.Context, id string) (profile.Profile, error) {
-	p, err := s.profiles.GetProfile(ctx, id)
+func (s *service) GetProfile(ctx context.Context, id string, profileType string) (profile.Profile, error) {
+	p, err := s.profiles.GetProfile(ctx, id, profileType)
 	
 	if err != nil {
 		return profile.Profile{}, err
@@ -45,12 +45,13 @@ func (s *service) UpdateProfile(ctx context.Context, newP profile.Profile) (prof
 	}
 	return p, nil
 }
-func (s *service) DeleteProfile(ctx context.Context, id string) error {
-	if err := s.profiles.DeleteProfile(ctx, id); err != nil {
+func (s *service) DeleteProfile(ctx context.Context, id string, profileType string) error {
+	if err := s.profiles.DeleteProfile(ctx, id, profileType); err != nil {
 		return err
 	}
 	return nil
 }
+/*
 func (s *service) SearchProfilesByDistance(ctx context.Context, lat float64, lon float64, miles int) ([]profile.Profile, error) {
 
 	milesToMeters := 1609.344
@@ -62,3 +63,4 @@ func (s *service) SearchProfilesByDistance(ctx context.Context, lat float64, lon
 	}
 	return profiles, nil
 }
+*/

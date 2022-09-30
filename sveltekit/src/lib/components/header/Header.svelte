@@ -7,7 +7,7 @@
 	import FriendsFilled from '$lib/components/icons/friends-filled.svelte';
 	import FriendsOutlined from '$lib/components/icons/friends-outlined.svelte';
 
-	import ForefinderLogo from '$lib/components/forefinder-logo-a.svelte';
+	import ForefinderLogo from '$lib/components/forefinder-golf-a.svelte';
 	import UserNavCircle from './user-nav-circle.svelte';
 	import type { User } from "$lib/auth";
 

@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import config from '$lib/config';
+import config from '$lib/server/config';
 import { error, redirect } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ url, request }) => {

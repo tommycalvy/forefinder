@@ -1,14 +1,7 @@
 <script lang="ts">
     import type { PageServerData } from "./$types";
-	import { colorGenerator } from "$lib/utils/color-generator";
     export let data: PageServerData;
 
-	let color = "hsl(150, 100%, 50%)";
-
-	function newColor() {
-		color = colorGenerator();
-		console.log('color: ', color);
-	}
 </script>
 
 
@@ -28,10 +21,57 @@
 	<br>
 	<br>
 	<br>
-	<button on:click={newColor}>New Color</button>
-	<div class="user-circle" style="background-color: {color}">
-		<span>{data.user?.name.charAt(0).toUpperCase() ?? 'T'}</span>
+	<div class="crud-service">
+		<form class="create-profile" method="POST" action="/profile/create" enctype="application/x-www-form-urlencoded">
+			<input placeholder="ID" name="id"/>
+			<input type="hidden" name="pType" value="golf" />
+			<input placeholder="Profile Type" name="pType" />
+			<input placeholder="Name" name="name" />
+			<input placeholder="Status" name="status" />
+			<input type="number" placeholder="Average Score" name="avgScore" />
+			<input type="number" placeholder="Age" name="age" />
+			<p>What is your gender?</p>
+			<div class="radio-field">
+				<div class="radio-option">
+					<input type="radio" id="gender" name="gender" value="0"/>
+					<label for="gender">Male</label>
+				</div>
+				<div class="radio-option">
+					<input type="radio" id="gender" name="gender" value="1"/>
+					<label for="gender">Female</label>
+				</div>
+				<div class="radio-option">
+					<input type="radio" id="gender" name="gender" value="2"/>
+					<label for="gender">Other</label>
+				</div>	
+			</div>
+			<br>
+			<input placeholder="Bio" name="bio" />
+			<p>How do you like to play golf?</p>
+			<div class="radio-field">
+				<div class="radio-option">
+					<input type="radio" id="gender" name="playStyle" value="0"/>
+					<label for="gender">Social</label>
+				</div>
+				<div class="radio-option">
+					<input type="radio" id="gender" name="playStyle" value="1"/>
+					<label for="gender">Network</label>
+				</div>
+				<div class="radio-option">
+					<input type="radio" id="gender" name="playStyle" value="2"/>
+					<label for="gender">Laid back</label>
+				</div>
+				<div class="radio-option">
+					<input type="radio" id="gender" name="playStyle" value="3"/>
+					<label for="gender">Competitive</label>
+				</div>	
+			</div>
+			<input type="color"/>
+			<br>
+			<button>Create Profile</button>
+		</form>
 	</div>
+	
 </section>
 
 <style>
@@ -47,6 +87,28 @@
 		width: 100%;
 	}
 
+	.crud-service {
+		display: flex;
+		justify-content: space-around;
+	}
+
+	.create-profile {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.radio-field {
+		display: flex;
+		justify-content: center;
+		column-gap: 1rem;
+	}
+
+	.radio-option {
+		display: flex;
+		flex-direction: column;
+	}
+	/*
 	.user-circle {
 		margin-top: 2rem;
 		display: flex;
@@ -63,4 +125,5 @@
 		color: var(--pure-white);
 		font-size: large;
 	}
+	*/
 </style>

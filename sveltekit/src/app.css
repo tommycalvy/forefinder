@@ -1,4 +1,14 @@
 :root {
+	font-size: 62.5%;
+}
+
+body {
+	font-size: 1.6rem;
+	margin: 0;
+}
+
+/*
+:root {
     --pure-white: #ffffff;
 	--pitch-black: #000000;
 	--primary-color: #b9c6d2;
@@ -28,8 +38,11 @@
 	--top-app-bar-height: 3.6rem;
 }
 
+
 body {
     min-height: 100vh;
     margin: 0;
     background-color: var(--forefinder-primary);
 }
+
+*/
