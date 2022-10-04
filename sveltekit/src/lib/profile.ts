@@ -9,5 +9,5 @@ export interface Profile {
 	Age: 				number;
     Gender:             number;
 	Bio: 				string;  
-	PlayStyle: 			number;
+	PlayStyle: 			string;
 }

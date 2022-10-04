@@ -41,7 +41,7 @@ export const load: LayoutServerLoad = async ({
 		console.log(data);
 		const {
 			data: { logout_token }
-		} = await auth.createSelfServiceLogoutFlowUrlForBrowsers(cookie);
+		} = await auth.createSelfServiceLogoutFlowUrlForBrowsers(cookie); // TODO: Not necessary for SSR. Call this clientside.
 		console.log('token: ', logout_token);
 		return {
 			user: {

@@ -1,13 +1,18 @@
 <script lang="ts">
-	export let width = 24;
-	export let height = 24;
+	export let width = 4.5;
+	export let height = 4.5;
 </script>
 
-<svg width="{width}rem" height="{height}rem" viewBox="0 0 {width * 10} {height * 10}">
+<svg
+    style="width:{width}rem;height:{height}rem"
+	width="240pt"
+	height="240pt"
+	viewBox="0 0 240 240"
+>
 	<defs />
 	<circle
 		id="shape0"
-		transform="translate(63, 63)"
+		transform="matrix(2 0 0 2 6.00000000000027 6.00000000000027)"
 		r="57"
 		cx="57"
 		cy="57"
@@ -17,36 +22,36 @@
 		stroke-linecap="square"
 		stroke-linejoin="bevel"
 	/><circle
-		id="shape0"
-		transform="matrix(0.999999975836567 0 0 0.999999975836567 82.8000001739767 112.800000173977)"
-		r="7.2"
-		cx="7.2"
-		cy="7.2"
+		id="shape01"
+		transform="matrix(1.99999995167313 0 0 1.99999995167313 42.0000003769495 104.40000037695)"
+		r="7.8"
+		cx="7.8"
+		cy="7.8"
 		fill="none"
 		stroke="#000000"
-		stroke-width="3.84"
+		stroke-width="4.8"
 		stroke-linecap="square"
 		stroke-linejoin="bevel"
 	/><circle
 		id="shape01"
-		transform="matrix(0.999999975072499 0 0 0.999999975072499 112.800000179478 112.800000179478)"
-		r="7.2"
-		cx="7.2"
-		cy="7.2"
+		transform="matrix(1.999999950145 0 0 1.99999995014499 104.400000388869 104.400000388869)"
+		r="7.8"
+		cx="7.8"
+		cy="7.8"
 		fill="none"
 		stroke="#000000"
-		stroke-width="3.84"
+		stroke-width="4.8"
 		stroke-linecap="square"
 		stroke-linejoin="bevel"
 	/><circle
 		id="shape02"
-		transform="matrix(0.99999999698236 0 0 0.99999999698236 142.800000021727 112.800000021727)"
-		r="7.2"
-		cx="7.2"
-		cy="7.2"
+		transform="matrix(1.99999999396472 0 0 1.99999999396472 166.800000047075 104.400000047075)"
+		r="7.8"
+		cx="7.8"
+		cy="7.8"
 		fill="none"
 		stroke="#000000"
-		stroke-width="3.84"
+		stroke-width="4.8"
 		stroke-linecap="square"
 		stroke-linejoin="bevel"
 	/>

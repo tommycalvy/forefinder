@@ -6,6 +6,7 @@
 	import MoreOutlined from "$lib/components/icons/more-outlined.svelte";
 	import ForefinderGolf from "$lib/components/icons/forefinder-golf.svelte";
 	import MessagesOutlined from "$lib/components/icons/messages-outlined.svelte";
+	import MessageIcon from "$lib/components/icons/message-icon.svelte";
 
     export let data: LayoutServerData;
 
@@ -23,13 +24,18 @@
 
 <main>
     <div class="navbar">
-        <div class="top-nav">
-            <MessagesOutlined width={48} height={48} />
-            <hr>
+        <div class="top-nav center-item">
+            <a href="/messages" class="rounded-box">
+                <MessageIcon />
+            </a>
+        </div>
+        <div class="middle-nav center-item">
             <ForefinderGolf />
         </div>
-        <div class="bottom-nav">
-            <MoreOutlined />
+        <div class="bottom-nav center-item">
+            <button class="rounded-box">
+                <MoreOutlined />
+            </button>
         </div>
     </div>
     <slot />
@@ -38,10 +44,55 @@
 <style>
     main {
         display: grid;
-        grid-template-columns: 20rem auto;
+        grid-template-columns: 10rem auto;
+        height: 100vh;
     }
 
     .navbar {
-        border: solid 0.1rem black
+        border-right: 0.1rem solid gainsboro;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background-color: rgb(62, 61, 68);
+    }
+
+    .center-item {
+        text-align: center;
+    }
+
+    .top-nav {
+        margin: 2rem 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .bottom-nav {
+        margin: 2rem 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .rounded-box {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background-color: whitesmoke;
+        border-radius: 0.8rem;
+        padding: 1rem;
+    }
+
+    button {
+        border: none;
+        background-color: none;
+        padding: none;
+        margin: none;
+        cursor: pointer;
+    }
+
+    a {
+        padding: none;
+        margin: none;
+        width: none;
     }
 </style>
