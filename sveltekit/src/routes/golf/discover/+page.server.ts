@@ -2,10 +2,11 @@ import type { User } from "$lib/auth";
 import type { PageServerLoad } from './$types';
 
 
-export const load: PageServerLoad = async({ parent }): Promise<{ user: User | undefined, title: string }> => {
+export const load: PageServerLoad = async({ parent }): Promise<{ user: User | undefined, pageTitle: string, localTitle: string }> => {
     const { user } = await parent();
     return {
         user,
-        title: 'Discover - Golf - ForeFinder'
+        pageTitle: 'Discover - Golf - ForeFinder',
+        localTitle: 'Discover'
     }
 }

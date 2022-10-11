@@ -4,29 +4,40 @@ import type { AxiosError } from 'axios';
 import { CRUD_SERVICE_URL } from '$env/static/private';
 import { auth } from '$lib/auth';
 import type { Profile } from '$lib/profile';
+import type { User } from '$lib/auth';
 
 type CreateProfileResponse = {
 	profile?: Profile;
 	error?: object;
 };
 
-export const load: PageServerLoad = async ({ parent }) => {
+export const load: PageServerLoad = async ({ parent }): Promise<{user: User | undefined, profile: Profile | undefined, pageTitle: string, localTitle: string}> => {
 	const { user } = await parent();
-	if (!user) {
-		console.log('No user session. Redirecting to /login');
-		throw redirect(307, '/login');
-	}
 
-	const res = await fetch(`${CRUD_SERVICE_URL}/profiles/v0/${user.id}/golf`);
-	const { profile, error }: CreateProfileResponse = await res.json();
-	if (error) {
-		console.log('crud-service error: ', error);
+	if (!user) {
+		//console.log('No user session. Redirecting to /login');
+		//throw redirect(307, '/login');
+		console.log('No user session. But continue anyway'); // TODO: Revert back to redirect in production
+		return {
+			user: undefined,
+			profile: undefined,
+			pageTitle: 'Profile - Golf - ForeFinder',
+			localTitle: 'Profile'
+		}
+	} else { // TODO: Revert back to redirect in production
+		const res = await fetch(`${CRUD_SERVICE_URL}/profiles/v0/${user.id}/golf`);
+		const { profile: profile, error }: CreateProfileResponse = await res.json();
+		if (error) {
+			console.log('crud-service error: ', error);
+		}
+		return {
+			user,
+			profile,
+			pageTitle: 'Profile - Golf - ForeFinder',
+			localTitle: 'Profile'
+		};
 	}
-	return {
-		user,
-		profile,
-		title: 'Profile - Golf - ForeFinder'
-	};
+	
 };
 
 export const actions: Actions = {
@@ -63,7 +74,13 @@ export const actions: Actions = {
 				console.log('Error getting form data: ', err);
 				throw error(500, 'Error creating profile');
 			})
-			.then(({ id, values }) => {
+			.then(async ({ id, values }) => {
+				// First we need to find a human readable ID for the user if he doesn't have one. 
+				// If he has one we would take it from the user's public metada.
+				// If he doesn't then we create one using his full name followed by 4 random numbers.
+				// We getItem the dynamodb to see if the ID already exists. 
+				// If not then we use that new ID to create his golf profile
+				// If the ID does already exist then we create a new random 4 digit number. 
 				const profileID = values.get('id') ?? id; //TODO: For Testing ONLY. Change to only "id" in production.
 				const name = values.get('name') ?? undefined;
 				const date = Date.now();
@@ -91,8 +108,10 @@ export const actions: Actions = {
 				const age = parseInt(ageStr);
 				const gender = parseInt(genderStr);
 
+				
+
 				const profile: Profile = {
-					ID: profileID,
+					ID: id,
 					ProfileType: pType,
 					Name: name,
 					LastActive: date,

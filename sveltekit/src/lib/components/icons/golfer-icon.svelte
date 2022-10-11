@@ -1,0 +1,62 @@
+<script lang="ts">
+	export let width = 3;
+	export let height = 3;
+</script>
+
+<svg style="width:{width}rem;height:{height}rem" width="240pt" height="240pt" viewBox="0 0 240 240">
+	<defs />
+	<path
+		id="shape0"
+		transform="matrix(1.05485388662565 0 0 1.05485388662565 88.3297189461305 5.76)"
+		fill="none"
+		stroke="#000000"
+		stroke-width="9.6"
+		stroke-linecap="square"
+		stroke-linejoin="bevel"
+		d="M12.914 90.2227C40.8929 138.555 7.24546 186.528 1.90154 197.264C-6.11434 213.368 13.018 225.326 25.6884 209.597C34.1354 199.112 52.6072 148.468 56.0827 147.928C59.5583 147.388 78.6784 200.466 83.8341 209.157C91.5676 222.193 115.163 211.02 110.704 198.585C106.245 186.15 67.5607 92.1851 69.7381 85.3772C71.9156 78.5692 88.666 68.2447 89.12 53.2209C89.5741 38.197 74.9796 19.2966 64.4522 6.08764C53.9248 -7.12135 36.217 2.66571 42.8678 21.0646C49.5186 39.4634 59.0622 47.8315 56.0827 58.0663C53.1033 68.3012 14.4484 71.958 12.914 90.2227Z"
+	/><circle
+		id="shape0"
+		transform="matrix(1.05342766521971 0.0548353856104521 -0.0548353856104521 1.05342766521971 77.4940754546208 30.3070252080205)"
+		r="21.6841615325097"
+		cx="21.6841615325097"
+		cy="21.6841615325097"
+		fill="none"
+		stroke="#000000"
+		stroke-width="9.6"
+		stroke-linecap="square"
+		stroke-linejoin="bevel"
+	/><path
+		id="shape1"
+		transform="matrix(-0.303164818764735 1.01035034260032 1.01035034260032 0.303164818764735 10.4326701573332 99.1565349962486)"
+		fill="none"
+		stroke="#000000"
+		stroke-width="9.6"
+		stroke-linecap="square"
+		stroke-linejoin="bevel"
+		d="M0 4.44776C14.0549 22.5649 22.4156 31.3228 25.0821 30.7215C29.0819 29.8196 34.1668 18.1229 26.5918 8.04813C19.0167 -2.02661 5.82946 -1.94876 0 4.44776Z"
+	/><rect
+		id="shape2"
+		transform="matrix(0.882073930770135 -0.578500045622264 0.578500045622264 0.882073930770135 8.57183909164282 98.7853882450326)"
+		fill="#000000"
+		fill-rule="evenodd"
+		stroke="#000000"
+		stroke-opacity="0"
+		stroke-width="0"
+		stroke-linecap="square"
+		stroke-linejoin="bevel"
+		width="74.9104855893583"
+		height="9.6"
+	/><rect
+		id="shape01"
+		transform="matrix(0.882073905246924 -0.578500028883103 0.578500028883103 0.882073905246924 109.930672572031 34.224389587337)"
+		fill="#000000"
+		fill-rule="evenodd"
+		stroke="#000000"
+		stroke-opacity="0"
+		stroke-width="0"
+		stroke-linecap="square"
+		stroke-linejoin="bevel"
+		width="26.1375208685995"
+		height="9.6"
+	/>
+</svg>

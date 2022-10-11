@@ -5,9 +5,11 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/tommycalvy/forefinder/crud-service/profile"
+	"github.com/tommycalvy/forefinder/crud-service/user"
 )
 
 type Endpoints struct {
+	CreateUserEndpoint 					endpoint.Endpoint
 	CreateProfileEndpoint 				endpoint.Endpoint 
 	GetProfileEndpoint 					endpoint.Endpoint
 	UpdateProfileEndpoint 				endpoint.Endpoint
@@ -22,6 +24,14 @@ func MakeEndpoints(s Service) Endpoints {
 		UpdateProfileEndpoint: 				MakeUpdateProfileEndpoint(s),
 		DeleteProfileEndpoint: 				MakeDeleteProfileEndpoint(s),
 		//SearchProfilesByDistanceEndpoint: 	MakeSearchProfilesByDistanceEndpoint(s),
+	}
+}
+
+func MakeCreateUserEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(createUserRequest)
+		u, e := s.CreateUser(ctx, req.User)
+		return createUserResponse{User: u, Err: e}, nil
 	}
 }
 
@@ -68,12 +78,19 @@ func MakeSearchProfilesByDistanceEndpoint(s Service) endpoint.Endpoint {
 */
 
 type (
+	createUserRequest struct {
+		User 				user.User 				
+	}
+	createUserResponse struct {
+		User 				user.User 				`json:"user,omitempty"`
+		Err 				error					`json:"error,omitempty"`
+	}
 	createProfileRequest struct {
 		Profile 			profile.Profile			
 	}
 	createProfileResponse struct {
 		Profile 			profile.Profile 		`json:"profile,omitempty"`
-		Err 				error 					`json:"err,omitempty"`
+		Err 				error 					`json:"error,omitempty"`
 	}
 	getProfileRequest struct {
 		ID 					string 
@@ -81,21 +98,21 @@ type (
 	}
 	getProfileResponse struct {
 		Profile 			profile.Profile 		`json:"profile,omitempty"`
-		Err 				error 					`json:"err,omitempty"`
+		Err 				error 					`json:"error,omitempty"`
 	}
 	updateProfileRequest struct {
 		Profile 			profile.Profile
 	}
 	updateProfileResponse struct {
 		Profile 			profile.Profile 		`json:"profile,omitempty"`
-		Err 				error 					`json:"err,omitempty"`
+		Err 				error 					`json:"error,omitempty"`
 	}
 	deleteProfileRequest struct {
 		ID 					string
 		ProfileType 		string
 	}
 	deleteProfileResponse struct {
-		Err 				error 					`json:"err,omitempty"`
+		Err 				error 					`json:"error,omitempty"`
 	}
 
 	/*
@@ -106,7 +123,7 @@ type (
 	}
 	searchProfilesByDistanceResponse struct {
 		Profiles 			[]profile.Profile 		`json:"profiles,omitempty"`
-		Err 				error					`json:"err,omitempty"`
+		Err 				error					`json:"error,omitempty"`
 	}
 	*/
 )

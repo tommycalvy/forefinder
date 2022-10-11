@@ -4,9 +4,12 @@ import (
 	"context"
 
 	"github.com/tommycalvy/forefinder/crud-service/profile"
+	"github.com/tommycalvy/forefinder/crud-service/user"
 )
 
 type Service interface {
+	CreateUser(ctx context.Context, u user.User) (user.User, error)
+	GetUser(ctx context.Context, userID string) (user.User, error)
 	CreateProfile(ctx context.Context, p profile.Profile) (profile.Profile, error)
 	GetProfile(ctx context.Context, id string, profileType string) (profile.Profile, error)
 	UpdateProfile(ctx context.Context, p profile.Profile) (profile.Profile, error)
@@ -15,13 +18,29 @@ type Service interface {
 }
 
 type service struct {
+	users 				user.Repository
 	profiles 			profile.Repository
 }
 
-func NewService(profiles profile.Repository) Service {
+func NewService(users user.Repository, profiles profile.Repository) Service {
 	return &service {
+		users: users,
 		profiles: profiles,
 	}
+}
+func (s *service) CreateUser(ctx context.Context, u user.User) (user.User, error) {
+	if err := s.users.CreateUser(ctx, u); err != nil {
+		return user.User{}, err
+	}
+	return u, nil
+}
+
+func (s *service) GetUser(ctx context.Context, userID string) (user.User, error) {
+	u, err := s.users.GetUser(ctx, userID)
+	if err != nil {
+		return user.User{}, err
+	}
+	return u, nil
 }
 
 func (s *service) CreateProfile(ctx context.Context, p profile.Profile) (profile.Profile, error) {

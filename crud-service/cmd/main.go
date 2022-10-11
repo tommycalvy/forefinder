@@ -11,6 +11,7 @@ import (
 	"github.com/go-kit/log"
 	service "github.com/tommycalvy/forefinder/crud-service"
 	"github.com/tommycalvy/forefinder/crud-service/profile"
+	"github.com/tommycalvy/forefinder/crud-service/user"
 )
 
 func main() {
@@ -31,8 +32,9 @@ func main() {
 	{
 		tableName := os.Getenv("AWS_TABLE_NAME")
 		profileRepo := profile.NewProfileRepo(tableName)
+		userRepo := user.NewProfileRepo(tableName)
 
-		s = service.NewService(profileRepo)
+		s = service.NewService(userRepo, profileRepo)
 		s = service.NewLoggingService(log.With(logger, "component", "profile"), s)
 	}
 	

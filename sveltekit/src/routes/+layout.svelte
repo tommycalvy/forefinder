@@ -5,7 +5,6 @@
     import '../app.css';
 	import MoreOutlined from "$lib/components/icons/more-outlined.svelte";
 	import ForefinderGolf from "$lib/components/icons/forefinder-golf.svelte";
-	import MessagesOutlined from "$lib/components/icons/messages-outlined.svelte";
 	import MessageIcon from "$lib/components/icons/message-icon.svelte";
 
     export let data: LayoutServerData;
@@ -13,7 +12,7 @@
   </script>
 
 <svelte:head>
-    <title>{$page.data.title}</title>
+    <title>{$page.data.pageTitle}</title>
 </svelte:head>
 
 
@@ -24,17 +23,19 @@
 
 <main>
     <div class="navbar">
-        <div class="top-nav center-item">
+        <div class="top-nav">
             <a href="/messages" class="rounded-box">
-                <MessageIcon />
+                <MessageIcon width={3.5} height={3.5} />
+            </a>
+            <div class="community-separator" />
+            <a href="/golf/home">
+                <ForefinderGolf />
+                <h4>Golf</h4>
             </a>
         </div>
-        <div class="middle-nav center-item">
-            <ForefinderGolf />
-        </div>
-        <div class="bottom-nav center-item">
+        <div class="bottom-nav">
             <button class="rounded-box">
-                <MoreOutlined />
+                <MoreOutlined width={3.5} height={3.5} />
             </button>
         </div>
     </div>
@@ -44,26 +45,26 @@
 <style>
     main {
         display: grid;
-        grid-template-columns: 10rem auto;
+        grid-template-columns: 8rem auto;
         height: 100vh;
     }
 
     .navbar {
-        border-right: 0.1rem solid gainsboro;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        background-color: rgb(62, 61, 68);
-    }
-
-    .center-item {
-        text-align: center;
+        background-color: var(--background-community-nav-light);
     }
 
     .top-nav {
-        margin: 2rem 0;
+        margin: 1.5rem 0;
         display: flex;
+        flex-direction: column;
         justify-content: center;
+        text-align: center;
+        align-items: center;
+        font-family: Georgia, 'Times New Roman', Times, serif;
+        letter-spacing: 0.1rem;
     }
 
     .bottom-nav {
@@ -77,9 +78,24 @@
         justify-content: center;
         align-items: center;
         text-align: center;
-        background-color: whitesmoke;
+        background-color: white;
         border-radius: 0.8rem;
-        padding: 1rem;
+        padding: 0.7rem;
+        box-shadow: 0 0.4rem 1rem -0.3rem rgb(217, 219, 222);
+    }
+
+    .community-separator {
+        width: 6rem;
+        height: 0.5rem;
+        margin: 2rem 2rem;
+        background-color: var(--background-community-accent-light);
+        border-radius: 0.5rem;
+    }
+
+    .top-nav h4 {
+        padding: 0;
+        margin: 0;
+        color: var(--forefinder-green);
     }
 
     button {
@@ -91,8 +107,8 @@
     }
 
     a {
-        padding: none;
-        margin: none;
-        width: none;
+        width: inherit;
+        text-decoration: none;
     }
+
 </style>

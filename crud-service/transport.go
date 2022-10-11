@@ -28,15 +28,21 @@ func MakeHTTPHandler(s Service, logger log.Logger) http.Handler {
 		httptransport.ServerErrorEncoder(encodeError),
 	}
 
+	// POST 	/users/v0/ 								adds another user
 
-	// POST 	/profiles/								adds another Profile
-	// GET 		/profiles/:id/:pType 					gets a Profile from id
-	// PUT 		/profiles/ 								updates a profile 
-	// DELETE 	/profiles/:id/:pType					deletes a profile
-	// GET 		/profiles/distance/:cc/:pc/:miles		finds profiles within a certain mile radius around a lat, lon
+	// POST 	/profiles/v0/							adds another Profile
+	// GET 		/profiles/v0/:id/:pType 				gets a Profile from id
+	// PUT 		/profiles/v0 							updates a profile 
+	// DELETE 	/profiles/v0/:id/:pType					deletes a profile
+	// GET 		/profiles/v0/distance/:cc/:pc/:miles	finds profiles within a certain mile radius around a lat, lon
 	
 	
-
+	r.Methods("POST").Path("/users/v0/").Handler(httptransport.NewServer(
+		e.CreateUserEndpoint,
+		decodeCreateUserRequest,
+		encodeResponse,
+		options...,
+	))
 
 	r.Methods("POST").Path("/profiles/v0/").Handler(httptransport.NewServer(
 		e.CreateProfileEndpoint,
@@ -73,6 +79,14 @@ func MakeHTTPHandler(s Service, logger log.Logger) http.Handler {
 
 	return r 
 
+}
+
+func decodeCreateUserRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	var req createUserRequest
+	if e := json.NewDecoder(r.Body).Decode(&req); e != nil {
+		return nil, e
+	}
+	return req, nil
 }
 
 func decodeCreateProfileRequest(_ context.Context, r *http.Request) (request interface{}, err error) {

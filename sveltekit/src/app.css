@@ -1,9 +1,23 @@
 :root {
 	font-size: 62.5%;
+	font-family: Helvetica, Arial, sans-serif;
+	--background-community-main-dark: rgb(42, 44, 47);
+	--background-community-accent-dark: rgb(82, 84, 87);
+	--background-community-nav-dark: rgb(92, 94, 97);
+
+	--background-community-main-light: rgb(227, 229, 232);
+	--background-community-accent-light: rgb(199, 202, 206);
+	--background-community-nav-light: rgb(243, 243, 245);
+	--forefinder-green: #99D420;
 }
 
 body {
 	font-size: 1.6rem;
+	margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-weight: 400;
 	margin: 0;
 }
 
