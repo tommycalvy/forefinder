@@ -29,6 +29,8 @@ func MakeHTTPHandler(s Service, logger log.Logger) http.Handler {
 	}
 
 	// POST 	/users/v0/ 								adds another user
+	// GET 		/users/v0/username/:username 			get user by username
+	// GET 		/users/v0/email/:email 					get user by email
 
 	// POST 	/profiles/v0/							adds another Profile
 	// GET 		/profiles/v0/:id/:pType 				gets a Profile from id
@@ -40,6 +42,18 @@ func MakeHTTPHandler(s Service, logger log.Logger) http.Handler {
 	r.Methods("POST").Path("/users/v0/").Handler(httptransport.NewServer(
 		e.CreateUserEndpoint,
 		decodeCreateUserRequest,
+		encodeResponse,
+		options...,
+	))
+	r.Methods("GET").Path("/users/v0/username/{username}").Handler(httptransport.NewServer(
+		e.GetUserByUsernameEndpoint,
+		decodeGetUserByUsernameRequest,
+		encodeResponse,
+		options...,
+	))
+	r.Methods("Get").Path("/users/v0/email/{email}").Handler(httptransport.NewServer(
+		e.GetUserByEmailEndpoint,
+		decodeGetUserByEmailRequest,
 		encodeResponse,
 		options...,
 	))
@@ -87,6 +101,24 @@ func decodeCreateUserRequest(_ context.Context, r *http.Request) (request interf
 		return nil, e
 	}
 	return req, nil
+}
+
+func decodeGetUserByUsernameRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	vars := mux.Vars(r)
+	username, ok := vars["username"]
+	if !ok {
+		return nil, ErrBadRouting
+	}
+	return getUserByUsernameRequest{Username: username}, nil
+}
+
+func decodeGetUserByEmailRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+	vars := mux.Vars(r)
+	email, ok := vars["email"]
+	if !ok {
+		return nil, ErrBadRouting
+	}
+	return getUserByEmailRequest{Email: email}, nil
 }
 
 func decodeCreateProfileRequest(_ context.Context, r *http.Request) (request interface{}, err error) {

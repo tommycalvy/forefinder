@@ -10,6 +10,8 @@ import (
 
 type Endpoints struct {
 	CreateUserEndpoint 					endpoint.Endpoint
+	GetUserByUsernameEndpoint 			endpoint.Endpoint
+	GetUserByEmailEndpoint 				endpoint.Endpoint
 	CreateProfileEndpoint 				endpoint.Endpoint 
 	GetProfileEndpoint 					endpoint.Endpoint
 	UpdateProfileEndpoint 				endpoint.Endpoint
@@ -19,6 +21,9 @@ type Endpoints struct {
 
 func MakeEndpoints(s Service) Endpoints {
 	return Endpoints {
+		CreateUserEndpoint: 				MakeCreateUserEndpoint(s),
+		GetUserByUsernameEndpoint: 			MakeGetUserByUsernameEndpoint(s),
+		GetUserByEmailEndpoint:		 		MakeGetUserByEmailEndpoint(s),			
 		CreateProfileEndpoint: 				MakeCreateProfileEndpoint(s),
 		GetProfileEndpoint: 				MakeGetProfileEndpoint(s),
 		UpdateProfileEndpoint: 				MakeUpdateProfileEndpoint(s),
@@ -30,8 +35,24 @@ func MakeEndpoints(s Service) Endpoints {
 func MakeCreateUserEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(createUserRequest)
-		u, e := s.CreateUser(ctx, req.User)
-		return createUserResponse{User: u, Err: e}, nil
+		e := s.CreateUser(ctx, req.User)
+		return createUserResponse{Err: e}, nil
+	}
+}
+
+func MakeGetUserByUsernameEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(getUserByUsernameRequest)
+		u, e := s.GetUserByUsername(ctx, req.Username)
+		return getUserResponse{User: u, Err: e}, nil
+	}
+}
+
+func MakeGetUserByEmailEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(getUserByEmailRequest)
+		u, e := s.GetUserByEmail(ctx, req.Email)
+		return getUserResponse{User: u, Err: e}, nil
 	}
 }
 
@@ -82,6 +103,15 @@ type (
 		User 				user.User 				
 	}
 	createUserResponse struct {
+		Err 				error					`json:"error,omitempty"`
+	}
+	getUserByUsernameRequest struct {
+		Username 			string
+	}
+	getUserByEmailRequest struct {
+		Email 				string
+	}
+	getUserResponse struct {
 		User 				user.User 				`json:"user,omitempty"`
 		Err 				error					`json:"error,omitempty"`
 	}

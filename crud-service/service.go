@@ -8,8 +8,9 @@ import (
 )
 
 type Service interface {
-	CreateUser(ctx context.Context, u user.User) (user.User, error)
-	GetUser(ctx context.Context, userID string) (user.User, error)
+	CreateUser(ctx context.Context, u user.User) error
+	GetUserByUsername(ctx context.Context, username string) (user.User, error)
+	GetUserByEmail(ctx context.Context, email string) (user.User, error)
 	CreateProfile(ctx context.Context, p profile.Profile) (profile.Profile, error)
 	GetProfile(ctx context.Context, id string, profileType string) (profile.Profile, error)
 	UpdateProfile(ctx context.Context, p profile.Profile) (profile.Profile, error)
@@ -28,15 +29,23 @@ func NewService(users user.Repository, profiles profile.Repository) Service {
 		profiles: profiles,
 	}
 }
-func (s *service) CreateUser(ctx context.Context, u user.User) (user.User, error) {
+func (s *service) CreateUser(ctx context.Context, u user.User) error {
 	if err := s.users.CreateUser(ctx, u); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *service) GetUserByUsername(ctx context.Context, username string) (user.User, error) {
+	u, err := s.users.GetUserByUsername(ctx, username)
+	if err != nil {
 		return user.User{}, err
 	}
 	return u, nil
 }
 
-func (s *service) GetUser(ctx context.Context, userID string) (user.User, error) {
-	u, err := s.users.GetUser(ctx, userID)
+func (s *service) GetUserByEmail(ctx context.Context, email string) (user.User, error) {
+	u, err := s.users.GetUserByEmail(ctx, email)
 	if err != nil {
 		return user.User{}, err
 	}

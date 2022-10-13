@@ -113,12 +113,8 @@ export const actions: Actions = {
 				const profile: Profile = {
 					ID: id,
 					ProfileType: pType,
-					Name: name,
-					LastActive: date,
 					Status: status,
 					AverageScore: avgScore,
-					Age: age,
-					Gender: gender,
 					Bio: bio,
 					PlayStyle: playStyle
 				};

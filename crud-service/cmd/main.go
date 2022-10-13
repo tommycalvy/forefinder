@@ -12,9 +12,15 @@ import (
 	service "github.com/tommycalvy/forefinder/crud-service"
 	"github.com/tommycalvy/forefinder/crud-service/profile"
 	"github.com/tommycalvy/forefinder/crud-service/user"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+  	if err != nil {
+    	fmt.Println("Error loading .env file")
+  	}
 
 	var (
 		httpAddr = flag.String("http.addr", ":5656", "HTTP listen address")
@@ -31,6 +37,7 @@ func main() {
 	var s service.Service 
 	{
 		tableName := os.Getenv("AWS_TABLE_NAME")
+		fmt.Println("Table Name: ", tableName)
 		profileRepo := profile.NewProfileRepo(tableName)
 		userRepo := user.NewProfileRepo(tableName)
 

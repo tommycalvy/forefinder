@@ -31,6 +31,7 @@ func NewProfileRepo(tableName string) Repository {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
     	Config: aws.Config {
 			Endpoint: aws.String("http://localhost:8000"),
+			Region: aws.String("us-east-1"),
 		},
 	}))
 

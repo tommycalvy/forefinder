@@ -5,10 +5,11 @@ import (
 	"errors"
 	"log"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 var (
@@ -19,22 +20,26 @@ var (
 
 
 type repo struct {
-	Dynamo 			*dynamodb.DynamoDB
+	Dynamo 			*dynamodb.Client
 	TableName 		string
 }
 
 func NewProfileRepo(tableName string) Repository {
-	// Initialize a session that the SDK will use to load
-	// credentials from the shared credentials file ~/.aws/credentials
-	// and region from the shared configuration file ~/.aws/config.
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-    	Config: aws.Config {
-			Endpoint: aws.String("http://localhost:8000"),
-		},
-	}))
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		// CHANGE THIS TO us-east-1 TO USE AWS proper
+		config.WithRegion("localhost"),
+		// Comment the below out if not using localhost
+		config.WithEndpointResolver(aws.EndpointResolverFunc(
+			func(service, region string) (aws.Endpoint, error) {
+				return aws.Endpoint{URL: "http://localhost:8000", SigningRegion: "localhost"}, nil 
+			})),
+	)
+    if err != nil {
+        log.Printf("unable to load SDK config, %v", err)
+    }
 
-	// Create DynamoDB client
-	dynamo := dynamodb.New(sess)
+    // Using the Config value, create the DynamoDB client
+    dynamo := dynamodb.NewFromConfig(cfg)
 
 	return &repo{
 		Dynamo:		dynamo,
@@ -43,17 +48,19 @@ func NewProfileRepo(tableName string) Repository {
 }
 
 func (r *repo) CreateUser(ctx context.Context, u User) error {
-	av, err := dynamodbattribute.MarshalMap(u)
-	if err != nil {
-		log.Printf("Got error marshalling new user item: %s", err)
-		return ErrRepo
-	}
-
+	
 	input := &dynamodb.PutItemInput{
-		Item:      av,
 		TableName: aws.String(r.TableName),
+		Item: map[string]types.AttributeValue {
+			"ID": 			&types.AttributeValueMemberS{Value: "user|" + u.Username},
+			"Metadata":		&types.AttributeValueMemberS{Value: "user|" + u.Username},
+			"Email":		&types.AttributeValueMemberS{Value: u.Email},
+			"Fullname": 	&types.AttributeValueMemberS{Value: u.Fullname},
+			"Dateofbirth": 	&types.AttributeValueMemberN{Value: u.Dateofbirth},
+			"Gender": 		&types.AttributeValueMemberN{Value: u.Gender},
+		},
 	}
-	_, err = r.Dynamo.PutItem(input)
+	_, err := r.Dynamo.PutItem(ctx, input)
 	if err != nil {
 		log.Printf("Got error calling PutItem: %s", err)
 		return ErrRepo
@@ -62,16 +69,13 @@ func (r *repo) CreateUser(ctx context.Context, u User) error {
 	return nil
 }
 
-func (r *repo) GetUser(ctx context.Context, userID string) (User, error) {
-		result, err := r.Dynamo.GetItem(&dynamodb.GetItemInput{
+
+func (r *repo) GetUserByUsername(ctx context.Context, username string) (User, error) {
+		result, err := r.Dynamo.GetItem(ctx, &dynamodb.GetItemInput{
 			TableName: aws.String(r.TableName),
-			Key: map[string]*dynamodb.AttributeValue{
-				"ID": {
-					S: aws.String("user|" + userID),
-				},
-				"Metadata": {
-					S: aws.String("user|" + userID),
-				},
+			Key: map[string]types.AttributeValue {
+				"ID": 			&types.AttributeValueMemberS{Value: "user|" + username},
+				"Metadata":		&types.AttributeValueMemberS{Value: "user|" + username},
 			},
 		})
 		if err != nil {
@@ -83,8 +87,9 @@ func (r *repo) GetUser(ctx context.Context, userID string) (User, error) {
 		if result.Item == nil {
 			return u, ErrNotFound
 		}
-			
-		err = dynamodbattribute.UnmarshalMap(result.Item, &u)
+		
+		err = attributevalue.UnmarshalMap(result.Item, &u)
+		u.Username = username
 		if err != nil {
 			log.Printf("Failed to unmarshal Record, %v", err)
 			return u, ErrRepo
@@ -92,3 +97,60 @@ func (r *repo) GetUser(ctx context.Context, userID string) (User, error) {
 		
 		return u, nil
 }
+
+func (r *repo) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	result, err := r.Dynamo.GetItem(ctx, &dynamodb.GetItemInput{
+		TableName: aws.String(r.TableName),
+		Key: map[string]types.AttributeValue {
+			"ID": 			&types.AttributeValueMemberS{Value: "email|" + email},
+			"Metadata":		&types.AttributeValueMemberS{Value: "email|" + email},
+		},
+	})
+	if err != nil {
+		log.Printf("Got error calling GetItem: %s", err)
+	}
+
+	u := User{}
+
+	if result.Item == nil {
+		return u, ErrNotFound
+	}
+		
+	err = attributevalue.UnmarshalMap(result.Item, &u)
+	if err != nil {
+		log.Printf("Failed to unmarshal Record, %v", err)
+		return u, ErrRepo
+	}
+	
+	return u, nil
+}
+
+/*
+func (r *repo) GetUserByFullname(ctx context.Context, fullname string) ([]User, error) {
+	result, err := r.Dynamo.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(r.TableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			"ID": {
+				S: aws.String("fullname|" + fullname),
+			},
+		},
+	})
+	if err != nil {
+		log.Printf("Got error calling GetItem: %s", err)
+	}
+
+	u := User{}
+
+	if result.Item == nil {
+		return u, ErrNotFound
+	}
+		
+	err = dynamodbattribute.UnmarshalMap(result.Item, &u)
+	if err != nil {
+		log.Printf("Failed to unmarshal Record, %v", err)
+		return u, ErrRepo
+	}
+	
+	return u, nil
+}
+*/
