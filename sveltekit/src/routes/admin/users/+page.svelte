@@ -3,9 +3,28 @@
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
-    let birthmonth = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    let birthday = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31];
-    let birthyear = [2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006, 2005, 2004, 2003, 2002, 2001, 2000, 1999, 1998, 1997];
+	let birthmonth = [
+		'January',
+		'February',
+		'March',
+		'April',
+		'May',
+		'June',
+		'July',
+		'August',
+		'September',
+		'October',
+		'November',
+		'December'
+	];
+	let birthday = [
+		1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+		27, 28, 29, 30, 31
+	];
+	let birthyear = [
+		2021, 2020, 2019, 2018, 2017, 2016, 2015, 2014, 2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006,
+		2005, 2004, 2003, 2002, 2001, 2000, 1999, 1998, 1997
+	];
 </script>
 
 <section>
@@ -16,49 +35,51 @@
 	<div class="create-user">
 		<h2>Create User Form</h2>
 		<br />
-		<form method="POST" action="?/CreateUser" use:enhance>
+		<form method="POST" action="?/createuser" use:enhance>
 			<div class="create-user-field">
-				<lable for="email">Email</lable>
-				<input type="email" placeholder="johndoe@hotmail.com" id="email" name="email" required/>
+				<lable for="email" name="email">Email</lable>
+				<input type="email" placeholder="johndoe@hotmail.com" id="email" name="email" required />
 			</div>
 			<div class="create-user-field">
-				<lable for="username">Username</lable>
-				<input placeholder="John-Doe1234" id="username" name="username" required/>
+				<lable for="username" name="username">Username</lable>
+				<input placeholder="John-Doe1234" id="username" name="username" required />
 			</div>
 			<div class="create-user-field">
-				<lable for="fullname">Full Name</lable>
-				<input placeholder="John Doe" id="fullname" name="fullname" required/>
+				<lable for="fullname" name="fullname">Full Name</lable>
+				<input placeholder="John Doe" id="fullname" name="fullname" required />
 			</div>
+
 			<div class="create-user-field">
-				<lable for="dateofbirth">Date of Birth</lable>
+				<lable>Date of Birth</lable>
 				<select name="birthmonth" id="birthmonth" required>
 					{#each birthmonth as month, i}
-                        <option value={i}>{month}</option>
-                    {/each}
+						<option value={i + 1}>{month}</option>
+					{/each}
 				</select>
 				<select name="birthday" id="birthday" required>
-                    {#each birthday as day}
-                        <option value={day}>{day}</option>
-                    {/each}
+					{#each birthday as day}
+						<option value={day}>{day}</option>
+					{/each}
 				</select>
-                <select name="birthyear" id="birthyear" required>
-                    {#each birthyear as year}
-                        <option value={year}>{year}</option>
-                    {/each}
-                </select>
+				<select name="birthyear" id="birthyear" required>
+					{#each birthyear as year}
+						<option value={year}>{year}</option>
+					{/each}
+				</select>
 			</div>
+
 			<div class="radio-field">
-				<label for="gender">Gender</label>
+				<label for="gender" name="gender">Gender</label>
 				<div class="radio-option">
-					<input type="radio" id="gender" name="gender" value="1" required/>
+					<input type="radio" id="gender" name="gender" value="1" required />
 					<label for="gender">Male</label>
 				</div>
 				<div class="radio-option">
-					<input type="radio" id="gender" name="gender" value="2" required/>
+					<input type="radio" id="gender" name="gender" value="2" required />
 					<label for="gender">Female</label>
 				</div>
 				<div class="radio-option">
-					<input type="radio" id="gender" name="gender" value="3" required/>
+					<input type="radio" id="gender" name="gender" value="3" required />
 					<label for="gender">Other</label>
 				</div>
 			</div>
@@ -66,10 +87,14 @@
 			<div class="create-user-submit">
 				<button type="submit">Create User</button>
 			</div>
-			{#if form?.success && !form.user}
-				<p>User Successfully Created</p>
-			{/if}
 		</form>
+		{#if form?.action === 'createuser'}
+            {#if form.success}
+                <p>User Created Successfully</p>
+            {:else}
+                <p>Err: {form.err}</p>
+            {/if}
+        {/if}
 	</div>
 
 	<div class="search-users">
@@ -97,7 +122,11 @@
 		</div>
 		<div class="search-results">
 			{#if form?.user}
-				<p>{form.user}</p>
+				<p>Username: {form.user.Username}</p>
+                <p>Email: {form.user.Email}</p>
+                <p>Fullname: {form.user.Fullname}</p>
+                <p>Dateofbirth: {form.user.Dateofbirth}</p>
+                <p>Gender: {form.user.Gender}</p>
 			{/if}
 		</div>
 	</div>

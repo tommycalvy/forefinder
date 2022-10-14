@@ -5,11 +5,11 @@ import (
 )
 
 type User struct {
-	Username 			string 	`json:"userid,omitempty"`
-	Email 				string	`json:"email,omitempty"`
-	Fullname 			string 	`json:"fullname,omitempty"`
-	Dateofbirth 		string 	`json:"dateofbirth,omitempty"`
-	Gender 				string 	`json:"gender,omitempty"`
+	Username 			string 	`json:"Username,omitempty"`
+	Email 				string	`json:"Email,omitempty"`
+	Fullname 			string 	`json:"Fullname,omitempty"`
+	Dateofbirth 		string 	`json:"Dateofbirth,omitempty"`
+	Gender 				string 	`json:"Gender,omitempty"`
 }
 
 type Repository interface {

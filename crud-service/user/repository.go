@@ -48,7 +48,11 @@ func NewProfileRepo(tableName string) Repository {
 }
 
 func (r *repo) CreateUser(ctx context.Context, u User) error {
-	
+	log.Printf("Username: %v", u.Username)
+	log.Printf("Email: %v", u.Email)
+	log.Printf("Fullname: %v", u.Fullname)
+	log.Printf("Dateofbirth: %v", u.Dateofbirth)
+	log.Printf("Gender: %v", u.Gender)
 	input := &dynamodb.PutItemInput{
 		TableName: aws.String(r.TableName),
 		Item: map[string]types.AttributeValue {
