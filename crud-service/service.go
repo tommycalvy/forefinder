@@ -16,6 +16,8 @@ type Service interface {
 	UpdateProfile(ctx context.Context, p profile.Profile) (profile.Profile, error)
 	DeleteProfile(ctx context.Context, id string, profileType string) error
 	//SearchProfilesByDistance(ctx context.Context, lat float64, lon float64, miles int) ([]profile.Profile, error)
+
+	CreatePost(ctx context.Context, p )
 }
 
 type service struct {

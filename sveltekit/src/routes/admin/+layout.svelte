@@ -3,6 +3,7 @@
 <div class="admin-layout">
     <nav>
         <a href="/admin"><h2>Admin</h2></a>
+        <a href="/admin/posts"><h2>Posts</h2></a>
         <a href="/admin/users"><h2>Users</h2></a>
         <a href="/admin/profiles"><h2>Profiles</h2></a>
     </nav>
