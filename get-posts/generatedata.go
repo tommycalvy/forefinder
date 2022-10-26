@@ -4,11 +4,21 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"time"
 )
 
-func fakelikes() int {
-	likes := 20
+func FakeLikes(maxlikes int) int {
+	randnum := rand.Float64() * 2 + 1/math.Sqrt(float64(maxlikes))
+	likes := int(1/(randnum * randnum))
 	return likes
+}
+
+// Returns
+func FakeTimeStamp(years int64) int64 {
+	timenow := time.Now().UnixMilli()
+	// Between [0, # of milliseconds in a x # of years]
+	milliseconds := rand.Int63n(31536000000) 
+	return timenow + milliseconds * years
 }
 
 func FakeDistanceFromCityV1(radius float64) float64 {
@@ -43,7 +53,7 @@ func FakeDistanceFromCityV5(radius float64) float64 {
 
 // Looks the best
 func FakeDistanceFromCityV6(radius float64) float64 {
-	randnum := rand.Float64() * 0.75 + 0.25   // So randnum is between [0.827, 100]
+	randnum := rand.Float64() * 0.75 + 0.25   // So randnum is between [0.25, 1]
 	dist := radius * (1/math.Sqrt(randnum) - 1)
 	return dist
 }

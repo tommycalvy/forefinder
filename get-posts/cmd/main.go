@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
@@ -50,11 +51,11 @@ func setBackgroundColor(img *image.RGBA, c color.Color) {
     }
 }
 
-func main() {
+func testPopulation() {
 	width := 2048
 	height := 2048
 
-	pop := 2000
+	pop := 10000
 	
 
 	f, err := os.Create("population-test.png")
@@ -65,7 +66,7 @@ func main() {
 	rect := image.Rect(0, 0, width, height)
 	poptestimg := image.NewRGBA(rect)
 	setBackgroundColor(poptestimg, color.White)
-	drawCircle(poptestimg, 1024, 1024, 500, color.Black)
+	drawCircle(poptestimg, 1024, 1024, 1000, color.Black)
 	//drawCircle(poptestimg, 1024, 1024, 900, color.Black)
 
 	//drawCircle(poptestimg, 1024, 1024, 800, color.Black)
@@ -81,7 +82,7 @@ func main() {
 
 
 	for i := 0; i < pop; i++ {
-		r := fake.FakeDistanceFromCityV6(500)
+		r := fake.FakeDistanceFromCityV6(1000)
 		a := rand.Float64() * 360
 		x := int(r * math.Cos(a)) + 1024
 		y := int(r * math.Sin(a)) + 1024
@@ -93,4 +94,11 @@ func main() {
 		log.Fatalf("err: %v", err)
 	}
 	log.Printf("Success!")
+}
+
+func main() {
+	for i := 0; i < 1000; i++ {
+		likes := fake.FakeLikes(10000)
+		fmt.Println(likes)
+	}
 }
