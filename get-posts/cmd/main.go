@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"image"
 	"image/color"
@@ -10,6 +11,8 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"strconv"
+	"strings"
 
 	fake "github.com/tommycalvy/forefinder/get-posts"
 )
@@ -57,7 +60,6 @@ func testPopulation() {
 
 	pop := 10000
 	
-
 	f, err := os.Create("population-test.png")
 	if err != nil {
 		log.Fatalf("err: %v", err)
@@ -67,19 +69,6 @@ func testPopulation() {
 	poptestimg := image.NewRGBA(rect)
 	setBackgroundColor(poptestimg, color.White)
 	drawCircle(poptestimg, 1024, 1024, 1000, color.Black)
-	//drawCircle(poptestimg, 1024, 1024, 900, color.Black)
-
-	//drawCircle(poptestimg, 1024, 1024, 800, color.Black)
-	//drawCircle(poptestimg, 1024, 1024, 700, color.Black)
-	//drawCircle(poptestimg, 1024, 1024, 600, color.Black)
-	//drawCircle(poptestimg, 1024, 1024, 500, color.Black)
-	//drawCircle(poptestimg, 1024, 1024, 400, color.Black)
-	//drawCircle(poptestimg, 1024, 1024, 300, color.Black)
-	//drawCircle(poptestimg, 1024, 1024, 200, color.Black)
-	//drawCircle(poptestimg, 1024, 1024, 100, color.Black)
-
-
-
 
 	for i := 0; i < pop; i++ {
 		r := fake.FakeDistanceFromCityV6(1000)
@@ -96,9 +85,119 @@ func testPopulation() {
 	log.Printf("Success!")
 }
 
-func main() {
-	for i := 0; i < 1000; i++ {
-		likes := fake.FakeLikes(10000)
+func printLikes(num int, maxlikes int) {
+	for i := 0; i < num; i++ {
+		likes := fake.FakeLikes(maxlikes)
 		fmt.Println(likes)
 	}
+}
+
+func printKarma(num int, maxKarma int) {
+	for i := 0; i < num; i++ {
+		karma := fake.FakeLikes(maxKarma)
+		fmt.Println(karma)
+	}
+}
+
+type City struct {
+	Latitude		float64
+	Longitude 		float64
+	Probability		float64
+	Population 		int
+}
+
+func loadCities() []City {
+	f, err := os.Open("citygeoprob.txt")
+	if err != nil {
+		log.Fatalf("err: %v", err)
+	}
+	defer f.Close()
+	sc := bufio.NewScanner(f)
+	cities := []City{}
+	for sc.Scan() {
+		city := City{}
+		line := sc.Text()
+		values := strings.Fields(line)
+		prob, err := strconv.ParseFloat(values[len(values) - 1], 64)
+		if err != nil {
+			fmt.Println(err)
+		}
+		lat, err := strconv.ParseFloat(values[len(values) - 3], 64)
+		if err != nil {
+			fmt.Println(err)
+		}
+		long, err := strconv.ParseFloat(values[len(values) - 2], 64)
+		if err != nil {
+			fmt.Println(err)
+		}
+		pop, err := strconv.Atoi(values[len(values) - 4])
+		if err != nil {
+			fmt.Println(err)
+		}
+		city.Latitude = lat
+		city.Longitude = long
+		city.Probability = prob
+		city.Population = pop
+		cities = append(cities, city)
+	}
+	return cities
+}
+
+type Post struct {
+	Latitude		float64
+	Longitude		float64
+	Timestamp		int64
+	Likes 			int 
+	Karma 			int 
+	Channel 		string
+}
+
+func createFakePost(cities []City) Post {
+	post := Post{}
+	var lat float64
+	var long float64
+	var pop int
+	for true {
+		randnum := rand.Int63n(int64(len(cities)))
+		if rand.Float64() <= cities[randnum].Probability {
+			lat = cities[randnum].Latitude
+			long = cities[randnum].Longitude
+			pop = cities[randnum].Population
+			break
+		}
+	}
+	maxRadius := float64(pop)/320000 + 5   // Max of 30 miles and min of 5 miles
+	post.Latitude, post.Longitude = fake.LatLongVariance(lat, long, maxRadius)
+	post.Timestamp = fake.FakeTimeStamp(1)
+	post.Likes = fake.FakeLikes(10000)
+	post.Karma = fake.FakeKarma(100000) + post.Likes
+	post.Channel = fake.RandomString(3, 30)
+	return post
+}
+
+func createTestData(num int) {
+	f, err := os.Create("post-test-data.txt")
+	if err != nil {
+		log.Fatalf("err: %v", err)
+	}
+	defer f.Close()
+	wr := bufio.NewWriter(f)
+	cities := loadCities()
+	for i:= 0; i < num; i++ {
+		post := createFakePost(cities)
+		lat := strconv.FormatFloat(post.Latitude, 'f', 6, 64)
+		long := strconv.FormatFloat(post.Longitude, 'f', 6, 64)
+		timestamp := strconv.FormatInt(post.Timestamp, 10)
+		likes := strconv.Itoa(post.Likes)
+		karma := strconv.Itoa(post.Karma)
+		channel := post.Channel
+		newline := fmt.Sprintf("%s %-32s %11s %11s %6s %6s\n", timestamp, channel, lat, long, likes, karma)
+		wr.WriteString(newline)
+	}
+	wr.Flush()
+	fmt.Println("Success!")
+}
+
+func main() {
+	createTestData(100000)
 }

@@ -1,11 +1,19 @@
 package fake
 
 import (
+	"bufio"
 	"fmt"
+	"log"
 	"math"
 	"math/rand"
+	"os"
+	"strconv"
+	"strings"
 	"time"
+
+	"github.com/zeebo/xxh3"
 )
+
 
 func FakeLikes(maxlikes int) int {
 	randnum := rand.Float64() * 2 + 1/math.Sqrt(float64(maxlikes))
@@ -13,10 +21,32 @@ func FakeLikes(maxlikes int) int {
 	return likes
 }
 
+func FakeKarma(maxKarma int) int {
+	randnum := rand.Float64() * 2 + 1/float64(maxKarma)
+	likes := int(1/randnum)
+	return likes
+}
+
+const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+func RandomString(min int, max int) string {
+	wordLength := (rand.Int63() % int64(max - min)) + int64(min)
+	b := make([]byte, wordLength)
+    for i := range b {
+        b[i] = letterBytes[rand.Int63() % int64(len(letterBytes))]
+    }
+    return string(b)
+}
+
+func XXHash(input string) uint64 {
+	output := xxh3.Hash([]byte(input))
+	return output
+}
+
 // Returns
+// Between [0, # of milliseconds in a x # of years]
 func FakeTimeStamp(years int64) int64 {
 	timenow := time.Now().UnixMilli()
-	// Between [0, # of milliseconds in a x # of years]
 	milliseconds := rand.Int63n(31536000000) 
 	return timenow + milliseconds * years
 }
@@ -58,9 +88,74 @@ func FakeDistanceFromCityV6(radius float64) float64 {
 	return dist
 }
 
+// Radius is in miles
+func LatLongVariance(lat float64, long float64, radius float64) (float64, float64) {
+
+		a := rand.Float64() * 2 * math.Pi
+		r := FakeDistanceFromCityV6(radius / 69) // 1 degree is 69 miles
+		newLat := r * math.Sin(a) + lat
+		newLong := r * math.Cos(a) + long
+		return newLat, newLong
+}
+
 func GenerateData(num int) {
 	for i:=0; i < num; i++ {
 		dist := FakeDistanceFromCityV1(10)
 		fmt.Println(dist)
 	}
+}
+
+type city struct {
+	Line 			string
+	Population		int
+}
+
+func AddCityProbabilities() {
+	f, err := os.Open("citytowngeopop.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	sc := bufio.NewScanner(f)
+	totalpop := 0
+	numcities := 0
+	cities := []city{}
+	for sc.Scan() {
+		line := sc.Text()
+		values := strings.Fields(line)
+		for i := 2; i < 5; i++ {
+			pop, err := strconv.Atoi(values[i])
+			if err == nil {
+				numcities++
+				totalpop += pop
+				fmt.Printf("City#: %d, Pop#: %d, Total#: %d\n", numcities, pop, totalpop)
+				cities = append(cities, city{ Line: line, Population: pop})
+				break;
+			} else {
+				fmt.Println(err)
+			}
+		}
+	}
+	f.Close()
+	f, err = os.Create("citygeoprob.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Total Population: %d\n", totalpop)
+	wr := bufio.NewWriter(f)
+	totalprob := 0.0
+	for i:=0; i < numcities; i++ {
+		prob := float64(cities[i].Population)/float64(totalpop)
+		totalprob += prob
+		propability := strconv.FormatFloat(prob,'f', 6, 64)
+		newline := cities[i].Line + " " + propability + "\n"
+		num, err := wr.WriteString(newline)
+		if err != nil {
+			fmt.Println(err)
+		} else {
+			fmt.Printf("Bytes Written: %d; %v", num, newline)
+		}
+	}
+	wr.Flush()
+	f.Close()
+	fmt.Printf("Total Probability: %f\n", totalprob)
 }
