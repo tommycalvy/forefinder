@@ -2,3 +2,8 @@ USA_lat_24_lon_-81_men.tif
 usa_pd_2020_1km_ASCII_XYZ.csv
 usa_pd_2020_1km.tif
 post-test-data.txt
+bazel-bin
+bazel-get-posts
+bazel-out
+bazel-testlogs
+.vscode

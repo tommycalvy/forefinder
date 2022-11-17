@@ -1,25 +1,31 @@
 package phtree
 
-type Key []uint64
 
 type Value interface {
 	Equals(v Value)	bool
 }
 
-type Entry struct {
-	Key 		Key
-	Value		Value
-	subNode 	*node
-	Dimension	int
+type Point struct {
+	Key 		[]uint64
+	Value 		interface{}
 }
 
-func NewEntry(k Key, v Value) *Entry {
-	return &Entry{
+type Entry interface {
+	isNode() 	bool
+}
+
+func NewPoint(k []uint64, v interface{}) *Point {
+	return &Point{
 		Key: k,
 		Value: v,
 	}
 }
 
+func (p *Point) isNode() bool {
+	return false
+}
+
+/*
 func (e *Entry) Equals(newE *Entry) bool {
 	if newE == e {
 		return true
@@ -40,3 +46,4 @@ func (e *Entry) Equals(newE *Entry) bool {
 	}
 	return true
 }
+*/
